@@ -12,4 +12,4 @@
 | `project.repo.default_branch` | `master` |
 | `project.architecture_doc` | `README.md` (this unit's own structure); the core's shape is `framework/README.md` |
 | `project.runbook_doc` | none — every command this project has is in `commands.md` |
-| `kb.root` | `knowledge-base/` |
+| `kb.root` | `./knowledge-base/` |

@@ -28,7 +28,7 @@ bindings that make its members dispatchable are rendered per host at the reposit
 
 ## Where the anchor points
 
-`{{kb.root}}` resolves to this directory. It is stated once in the project's context
+`{{kb.root}}` resolves to this directory, written `./knowledge-base/`. It is stated once in the project's context
 (`kb.root`) and restated in the host's instruction file, so an agent that meets
 `{{kb.root}}/framework/rules/...` in a mounted skill can resolve it without opening the
 context. Files *inside* the unit never use the anchor — they are knowledge-base-relative

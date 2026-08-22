@@ -71,7 +71,7 @@ is the violation.
 
 ## 1. The other two rules that shape the repository
 
-- **`{{kb.root}}` is `knowledge-base/`.** That is the anchor, and this line is where an agent
+- **`{{kb.root}}` is `./knowledge-base/`.** That is the anchor, and this line is where an agent
   resolves it. A mounted skill or any other file outside the unit cites
   `{{kb.root}}/framework/…`; a file inside the unit cites `framework/…`, knowledge-base-relative
   (FI-27).

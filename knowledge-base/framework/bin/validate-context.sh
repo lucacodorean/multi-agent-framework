@@ -258,7 +258,9 @@ fi
   || note "  framework/VERSION is absent — a consumer cannot say which core it vendored"
 anchor=$(basename "$KB")
 if [ -n "$CTX" ] && [ -f "$CTX/project.md" ]; then
-  declared=$(grep -oE '^\| `kb\.root` \| `[^`]+`' "$CTX/project.md" | grep -oE '`[^`]+`$' | tr -d '`/')
+  # accept ./dir/, dir/, ./dir or dir — the anchor is a location, not a spelling
+  declared=$(grep -oE '^\| `kb\.root` \| `[^`]+`' "$CTX/project.md" | grep -oE '`[^`]+`$' \
+             | tr -d '`' | sed 's|^\./||; s|/*$||')
   if [ -z "$declared" ]; then
     note "  the context declares no kb.root — files outside the unit have no anchor to cite (FI-27)"
   elif [ "$declared" != "$anchor" ]; then
