@@ -18,15 +18,16 @@ Never run both modes in one uninterrupted pass. PLAN always ends at an approval 
 
 ## Step 0 — Read the orchestration docs (both modes, always first)
 
-The project's documentation is the authority on *how* orchestration works; this skill's defaults apply only where the docs are silent. Before planning or dispatching, look for and read:
+The project's own rules are the authority on *how* orchestration works; this skill's defaults apply only where they are silent. Before planning or dispatching, look for and read:
 
-- `CLAUDE.md`, `AGENTS.md` (repo root and relevant subdirs)
-- `docs/orchestration*`, `docs/conventions*`, `docs/architecture*`, blueprint documents
-- Any file the user points at as "the orchestration model" or "the blueprint"
+- `framework/rules/orchestration.md` and `framework/rules/invariants.md` — the framework rules
+- `project-context/roster.md`, `project-context/commands.md`, `project-context/ci.md` — who owns what, how work is verified, what serializes
+- `framework/hosts/<host>.md` — the dispatch primitives, model map and effort map of the host being called
+- the repository's index-and-law file (`CLAUDE.md`, `AGENTS.md`) and any file the user points at as "the orchestration model"
 
-Docs may override any default in this skill: model routing rules, effort taxonomy, parallelism limits, wave protocol, agent roles, handoff/report formats, branch/worktree conventions, and whether waves auto-continue or gate on the user. When a doc rule and a skill default conflict, the doc wins — note the override in the plan so the user can see it was honored.
+Those rules may override any default in this skill: model routing, effort taxonomy, parallelism limits, wave protocol, agent roles, handoff and report formats, branch or working-copy conventions, and whether waves auto-continue or gate on the user. When a project rule and a skill default conflict, the project rule wins — note the override in the plan so the user can see it was honored.
 
-If no project docs are reachable (e.g., pure chat context without a repo), say so in one line and proceed with the defaults below.
+If no project rules are reachable (e.g., pure chat context without a repo), say so in one line and proceed with the defaults below.
 
 ## PLAN mode
 

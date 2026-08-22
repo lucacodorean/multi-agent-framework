@@ -8,61 +8,60 @@ Assign the **cheapest tier that can meet the task's acceptance criteria on the f
 
 ## Model tiers
 
-Use tier names (`haiku` / `sonnet` / `opus`) in plans, never host slugs (`grok-4.5`, `grok-4.6`, a Claude alias). The host adapter below maps those names at DISPATCH. Project docs override the table.
+Use framework tier names (`cheap` / `standard` / `top`) in plans, never host model identifiers.
+The host adapter maps them at DISPATCH (`framework/hosts/<host>.md` § Model map). Project rules
+override the table.
 
 | Tier | Route to it when the task is... | Typical examples |
 |---|---|---|
-| **haiku** | Mechanical, pattern-following, low ambiguity; success is obvious | Renames, boilerplate, config edits, format conversions, applying a documented convention, running/verifying scripted steps, simple lookups and summaries |
-| **sonnet** | Standard skilled work inside known patterns | Feature implementation against a clear spec, writing tests, well-scoped refactors, integrations with documented APIs, docs writing, code review of routine changes |
-| **opus** | Ambiguous, cross-cutting, novel, or expensive-to-get-wrong | Architecture and interface design, decomposing vague requirements, root-cause debugging, security-sensitive changes, cross-cutting refactors, anything whose failure invalidates downstream tasks |
+| **cheap** | Mechanical, pattern-following, low ambiguity; success is obvious | Renames, boilerplate, config edits, format conversions, applying a documented convention, running/verifying scripted steps, simple lookups and summaries |
+| **standard** | Standard skilled work inside known patterns | Feature implementation against a clear spec, writing tests, well-scoped refactors, integrations with documented APIs, docs writing, code review of routine changes |
+| **top** | Ambiguous, cross-cutting, novel, or expensive-to-get-wrong | Architecture and interface design, decomposing vague requirements, root-cause debugging, security-sensitive changes, cross-cutting refactors, anything whose failure invalidates downstream tasks |
 
 Two useful asymmetries:
 
-- **Workflow-route tasks rarely need more than haiku** — determinism already removed the judgment.
+- **Workflow-route tasks rarely need more than `cheap`** — determinism already removed the judgment.
 - **Tasks on the critical path or with many dependents** justify one tier higher than their content alone suggests: their failure cost includes everyone waiting on them.
 
 ## Effort levels
 
-Effort is the task's thinking/verification budget, orthogonal to tier (a haiku task can warrant high effort if verification is fiddly; an opus task exploring options may run medium).
+Effort is the task's thinking/verification budget, orthogonal to tier (a `cheap` task can warrant high effort if verification is fiddly; a `top` task exploring options may run medium).
 
 | Effort | Meaning |
 |---|---|
 | **low** | Single pass, no exploration. Do the thing, check the obvious. |
 | **medium** | Some exploration of alternatives, self-review of the output against the acceptance criteria before reporting done. |
 | **high** | Extended reasoning: consider multiple approaches, adversarially self-review (what would make this wrong?), verify against every acceptance criterion explicitly. |
-| **xhigh** | Extra High on hosts that expose it (Grok 4.6). Same job as high, more reasoning budget. Not a default. Needs a one-line rationale. |
+| **xhigh** | Same job as high, more reasoning budget, on hosts that expose it (`framework/hosts/<host>.md` § Effort map). Not a default. Needs a one-line rationale. |
 
-Defaults: haiku→low, sonnet→medium, opus→high. `xhigh` is never a default. Deviations need the one-line rationale in the plan.
+Defaults: `cheap`→low, `standard`→medium, `top`→high. `xhigh` is never a default. Deviations need the one-line rationale in the plan.
 
 ## Escalation rule
 
 When a task fails its acceptance criteria:
 
 1. Retry **once** on the same tier with the failure evidence appended to the prompt.
-2. If it fails again, escalate **one tier** (and effort to at least medium) and note the escalation in the run manifest. On Grok that also remaps the model (sonnet → opus is 4.5 → 4.6). If the task is already opus / high on 4.6, escalate effort to `xhigh` before surfacing.
+2. If it fails again, escalate **one tier** (and effort to at least medium) and note the escalation in the run manifest. If the task is already `top` / high, escalate effort to `xhigh` where the host exposes it before surfacing.
 3. If it fails on the escalated tier (or `xhigh`), stop and surface to the user — a task failing across two tiers is usually a spec problem, not a capability problem.
 
 Never silently escalate to the top tier on first failure; the manifest must show what escalations actually cost.
 
 ## Dispatch host adapter
 
-Plans stay portable. DISPATCH resolves each cell against the **host being called**, not the lead session.
+Plans stay portable: they carry framework tier and effort names only. DISPATCH resolves each
+cell against the **host being called**, not the lead session, through that host's adapter:
 
-On Grok, cheaper work is a cheaper model: haiku and sonnet → `grok-4.5`; opus → `grok-4.6`. Effort is still `reasoning_effort`. Grok 4.5 has no `xhigh` (low / medium / high only) — clamp `xhigh` → `high` and note it.
+- `framework/hosts/<host>.md` § Model map — tier → host model identifier.
+- `framework/hosts/<host>.md` § Effort map — effort → host field, and how `xhigh` clamps.
+- `framework/hosts/<host>.md` § Capability gaps — what the host cannot express.
 
-| Plan tier | Claude `model` | Grok `model` |
-|---|---|---|
-| **haiku** | host haiku alias | `grok-4.5` |
-| **sonnet** | host sonnet alias | `grok-4.5` |
-| **opus** | host opus alias | `grok-4.6` |
+Rules that hold on every host:
 
-| Plan effort | Claude `Workflow.agent()` | Grok 4.6 `agent()` / `parallel()` | Grok 4.5 | Claude `Agent` / Grok `spawn_subagent` if no effort field |
-|---|---|---|---|---|
-| **low** | `effort: low` | `reasoning_effort: "low"` | same | prompt Effort guidance; `prompt-only` |
-| **medium** | `effort: medium` | `reasoning_effort: "medium"` | same | same |
-| **high** | `effort: high` | `reasoning_effort: "high"` | same | same |
-| **xhigh** | clamp to `high`; note in manifest | `reasoning_effort: "xhigh"` | clamp to `high`; note | prompt says xhigh; `prompt-only` |
-
-- Always pass Grok `reasoning_effort`. grok-4.6's host default is Extra High; omitting the field is a silent upgrade to `xhigh`.
-- Always fill the prompt's Effort guidance as well.
-- If a call rejects `reasoning_effort` / `effort`, drop the field, keep the prompt line, and mark the forfeit in the manifest.
+- Always pass the host's effort field where one exists; omitting it can silently select the
+  host's own default, which may be higher than the plan approved.
+- Always fill the prompt's Effort guidance as well — on a host with no effort field it is the
+  only budget the child sees.
+- If a call rejects the effort field, drop the field, keep the prompt line, and mark the
+  forfeit in the manifest.
+- A host identifier never appears in a plan, a manifest or a dispatch prompt: only in an
+  adapter.

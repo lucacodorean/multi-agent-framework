@@ -1,6 +1,6 @@
 ---
 name: docs-compaction
-description: Compact project documentation accumulated during development to reduce token usage in future sessions, while preserving all normative content (principles, rules, conventions, architectural decisions, workflows) with full fidelity. Use this skill whenever the user wants to shrink, trim, clean up, deduplicate, or reorganize project docs, CLAUDE.md, ADRs, convention files, or blueprints; complains about context bloat, token usage, or docs "getting too long"; or asks to prepare documentation for continued AI-agent work. Trigger even if the user doesn't say "compact" — phrases like "our docs are a mess", "CLAUDE.md is huge", "reduce context size", or "clean up the documentation before we continue" all apply.
+description: Compact project documentation accumulated during development to reduce token usage in future sessions, while preserving all normative content (principles, rules, conventions, architectural decisions, workflows) with full fidelity. Use this skill whenever the user wants to shrink, trim, clean up, deduplicate, or reorganize project docs, the index-and-law file, decision records, convention files, or blueprints; complains about context bloat, token usage, or docs "getting too long"; or asks to prepare documentation for continued AI-agent work. Trigger even if the user doesn't say "compact" — phrases like "our docs are a mess", "CLAUDE.md is huge", "reduce context size", or "clean up the documentation before we continue" all apply.
 ---
  
 # Documentation Compaction
@@ -15,9 +15,11 @@ wins.** Every step below exists to enforce that.
  
 ## Scope
  
-Operate on documentation loaded or referenced during development: CLAUDE.md,
-`docs/`, ADRs, blueprints, convention files, READMEs, agent instruction files.
-Exclude source code, generated artifacts, and third-party docs.
+Operate on documentation loaded or referenced during development: the paths in
+`{{docs.write_paths[]}}`, plus the project's index-and-law file, READMEs and agent
+instruction files. Exclude source code, generated artifacts, and third-party docs.
+Framework-core files (`framework/**`) are out of scope: they are compacted by their
+maintainers, not per project.
  
 If the user names specific files, restrict to those. If not, discover the set
 yourself in the inventory step and confirm it with the user before editing.
@@ -30,13 +32,10 @@ only thing that catches semantic loss introduced in step 3.
 ### 1. Inventory
  
 List every documentation file with an approximate token count and a one-line
-purpose. The metric of record for this project is `wc -w` multiplied by 4/3
-(ratified 2026-08-19); do not use `wc -c` divided by 4, which overstates badly on
-this corpus — Romanian diacritics, em dashes and glyphs like `≤` are multi-byte in
-UTF-8 but do not cost extra tokens. Budgets in
-`docs/conventions/documentation-governance.md` are enforced against the words
-metric. Flag duplicates, stale files, and
-overlapping content. Present the inventory and the proposed scope before editing
+purpose. The metric of record is `{{docs.metric}}` — use no other, and read the
+project's own note there before substituting a cheaper estimate. Budgets in
+`{{docs.write_paths[]}}` are enforced against that metric. Flag duplicates, stale
+files, and overlapping content. Present the inventory and the proposed scope before editing
 anything — the user may know that some file is load-bearing for tooling or CI.
  
 ### 2. Classify content
@@ -77,7 +76,7 @@ Apply these transformations:
   reference. A broken doc link in CI or an agent config is a regression.
 ### 4. Safety
  
-- Move all removed content to `docs/archive/` (or an equivalent the user names).
+- Move all removed content to `{{docs.archive_dir}}` (or an equivalent the user names).
   Never hard-delete — compaction should be reversible.
 - If two rules conflict, do not resolve the conflict silently, even when one
   side looks obviously newer or better. Keep both, mark with `CONFLICT:`, and
