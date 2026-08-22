@@ -12,7 +12,9 @@
 #      instruction file states the prohibition and the example gate (FI-24), the filesystem lock
 #      and both hooks are installed, and any uncommitted core change is reported so it cannot be
 #      silent;
-#   7. anchors — the extension index exists (FI-26) and {{kb.root}} resolves (FI-27).
+#   7. anchors — the extension index exists (FI-26) and {{kb.root}} resolves (FI-27);
+#   8. documentation policy wiring — every standing authorization and every declared write path
+#      resolves. No path is known to this script: it checks whatever the context declares.
 #
 # Usage: framework/bin/validate-context.sh [context-dir]
 #   With no argument: ./project-context if it exists, else the core is checked alone. An example
@@ -52,6 +54,12 @@ core_files() {
 # exist to name harnesses) and the example-bearing templates.
 pure_files() { core_files | grep -v '^framework/hosts/'; }
 
+# The standing roster's members, parsed from the core. Names only — no file is special-cased.
+roster_members() {
+  awk '/^## Members/{f=1;next} /^## /{f=0} f' framework/roster.md 2>/dev/null \
+    | grep -oE '^\| `[a-z][a-z0-9-]*`' | tr -d '|` '
+}
+
 echo "== 1. contract completeness"
 if [ -z "$CTX" ]; then
   echo "  no instantiation present — core checked alone (copy framework/templates/project-context/ to instantiate)"
@@ -69,6 +77,19 @@ while read -r ph; do
   grep -qF "$ph" "$SCHEMA" || { note "  placeholder not in the contract: $ph"; undocumented=$((undocumented+1)); }
 done < <(core_files | xargs grep -ho '{{[a-z_]*\.[A-Za-z0-9_.\[\]]*}}' 2>/dev/null | sort -u)
 [ "$undocumented" -eq 0 ] && echo "  every placeholder used by a core file is documented"
+# The other direction: a key the contract documents and no context file supplies is invisible
+# today. Rows the contract itself marks as sourced from the core roster are not the project's to
+# supply, and are skipped.
+if [ -n "$CTX" ]; then
+  unsupplied=0
+  while IFS= read -r row; do
+    case "$row" in *'framework/roster.md'*) continue;; esac
+    for ph in $(printf '%s' "$row" | grep -oE '\{\{[a-z_]+\.[A-Za-z0-9_.]*(\[\])?\}\}' | tr -d '{}' | sed 's/\[\]$//'); do
+      grep -rqF "\`$ph\`" "$CTX"/ 2>/dev/null || { note "  contract documents '$ph' and no context file supplies it"; unsupplied=$((unsupplied+1)); }
+    done
+  done < <(grep '^| ' "$SCHEMA")
+  [ "$unsupplied" -eq 0 ] && echo "  every documented key is supplied by the context"
+fi
 
 echo "== 2. core purity (FI-23)"
 purity=0
@@ -90,7 +111,7 @@ hits=$(pure_files | xargs grep -niE "$STACK_TERMS" 2>/dev/null || true)
 [ -n "$hits" ] && { note "  stack term in core:"; printf '%s\n' "$hits" | sed 's/^/    /'; purity=1; }
 [ "$purity" -eq 0 ] && echo "  no project identity or stack term in core"
 
-echo "== 3. binding thinness"
+echo "== 3. bindings and roster wiring"
 # Bindings live at the host mount points, which are outside this unit — a harness discovers
 # agents only at the repository root (hosts/). Search there and beside the resolved context;
 # an example's bindings are checked when, and only when, its context was named (FI-24).
@@ -109,6 +130,28 @@ else
     [ "$lines" -gt 40 ] && note "  $b is $lines lines — a binding restating a charter is a defect"
   done
   echo "  $(printf '%s\n' $bindings | wc -l) bindings checked"
+fi
+# Every member of the standing roster must be dispatchable on every host that has a binding
+# directory, and must own something — or be explicitly empty — in the context.
+members=$(roster_members)
+if [ -z "$members" ]; then
+  note "  the standing roster lists no members — framework/roster.md § Members is unparseable"
+else
+  for dir in $(printf '%s\n' $bindings | xargs -r -n1 dirname | sort -u); do
+    for m in $members; do
+      [ -f "$dir/$m.md" ] || note "  $dir has no binding for roster member '$m' — it cannot be dispatched there"
+    done
+  done
+  for b in $bindings; do
+    bm=$(basename "$b" .md)
+    printf '%s\n' $members | grep -qx "$bm" || note "  $b binds '$bm', which is not a member of the standing roster"
+  done
+  if [ -n "$CTX" ] && [ -f "$CTX/roster.md" ]; then
+    for m in $members; do
+      grep -qF "\`$m\`" "$CTX/roster.md" || note "  the context does not mention roster member '$m' — its ownership is undeclared, not empty"
+    done
+  fi
+  echo "  $(printf '%s\n' $members | wc -l) roster members accounted for"
 fi
 
 echo "== 4. reference integrity"
@@ -197,6 +240,32 @@ for f in ../CLAUDE.md ../AGENTS.md; do
   [ -f "$f" ] || continue
   grep -q "kb.root" "$f" || note "  ${f#../} does not state where {{kb.root}} points — a mounted skill cannot resolve it (FI-27)"
 done
+
+echo "== 8. documentation policy wiring"
+if [ -z "$CTX" ] || [ ! -f "$CTX/docs-policy.md" ]; then
+  echo "  no documentation policy to check"
+else
+  POL="$CTX/docs-policy.md"
+  # A standing authorization names the file that grants a whole class of documents (FI-20). If
+  # that file is absent the authorization is a claim, not a grant.
+  auth_missing=0
+  for a in $(grep -oE 'standing: `[^`]+`' "$POL" | sed 's/standing: //' | tr -d '`'); do
+    t=$a; case "$a" in /*) t="${a#/}";; esac
+    [ -e "$t" ] || { note "  standing authorization names '$a', which does not exist"; auth_missing=$((auth_missing+1)); }
+  done
+  [ "$auth_missing" -eq 0 ] && echo "  every standing authorization resolves"
+  # Declared write paths must exist, or say they do not yet. No filename is known here.
+  wp_missing=0; wp_total=0
+  while IFS= read -r row; do
+    case "$row" in *'not yet created'*) continue;; esac
+    pth=$(printf '%s' "$row" | sed -n 's/^| *`\([^`]*\)`.*/\1/p')
+    [ -z "$pth" ] && continue
+    case "$pth" in *'<'*|*'*'*) continue;; esac
+    wp_total=$((wp_total+1))
+    [ -e "$pth" ] || { note "  declared write path '$pth' does not exist — mark it 'not yet created' or create it"; wp_missing=$((wp_missing+1)); }
+  done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$POL")
+  [ "$wp_missing" -eq 0 ] && echo "  all $wp_total declared write paths exist"
+fi
 
 echo
 [ "$fail" -eq 0 ] && echo "PASS" || echo "FINDINGS — see above"

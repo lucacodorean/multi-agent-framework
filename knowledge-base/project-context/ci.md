@@ -11,6 +11,8 @@ Rules: `framework/rules/ci-gates.md`.
 
 ## Gates
 
+`ci.gates`:
+
 | name | proves | command | serialized |
 |---|---|---|---|
 | context | the seven checks: contract completeness, core purity (FI-23), binding thinness (FI-09), reference integrity, example isolation (FI-24), core protection (FI-25), anchors (FI-26, FI-27) | `framework/bin/validate-context.sh` | no |

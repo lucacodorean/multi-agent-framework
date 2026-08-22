@@ -15,7 +15,7 @@ is wrong, but because this project has no domain code, no stored state, no runti
 provider context. The clause in `framework/roster.md` that permits an empty member is exercised,
 not assumed.
 
-| member | owns | carve-outs | stack | verify | destructive |
+| `member.name` | `member.owns` | `member.carve_outs` | `member.stack` | `member.verify` | `member.destructive` |
 |---|---|---|---|---|---|
 | `contract-owner` | `project-context/**`, `extensions/**` | — | Markdown; the contract in `framework/contracts/` | `commands.test` | — |
 | `domain-engineer` | — not dispatched: the product is the core, and the core is read-only | — | — | — | — |
@@ -25,7 +25,7 @@ not assumed.
 | `code-reviewer` | nothing — every path is read-only, `docs/_intake.md` included | — | reads Bash and Markdown | read-only inspection only | none |
 | `docs-agent` | `docs.write_paths` in `docs-policy.md` | — | — | budgets under `docs.metric` | — |
 
-`conventions` for every dispatched member: `docs/conventions/engineering-principles.md` and
+`member.conventions` for every dispatched member: `docs/conventions/engineering-principles.md` and
 `docs/conventions/architecture-principles.md` — both stubs; a member reads them and finds the
 slot described rather than filled.
 
@@ -42,7 +42,7 @@ Owned by the human maintainer, by no agent:
 | `../prompts/**` | the inputs work arrives as, and the deliverables they produced |
 | `../.claude/**`, `../.opencode/**` | harness directories, one per orchestrating agent (FI-21). The bindings inside them are generated (`runtimes.generated_dirs`); the settings and statusline are operator configuration |
 
-## Duties beyond the charter
+## `member.duties` — beyond the charter
 
 ### contract-owner
 
