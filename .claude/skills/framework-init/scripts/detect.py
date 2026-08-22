@@ -42,9 +42,13 @@ CI_MARKERS = [
 ]
 # Script names that usually mean the same thing across ecosystems.
 COMMAND_HINTS = {
-    "test": ("commands.test", ["test", "tests", "spec", "check", "pytest", "phpunit", "jest", "vitest"]),
-    "lint": ("commands.style_check", ["lint", "style", "format", "fmt", "pint", "prettier", "rubocop"]),
-    "analyse": ("commands.static_analysis", ["analyse", "analyze", "typecheck", "types", "stan", "mypy", "tsc"]),
+    "test": ("commands.test", ["test", "tests", "spec", "pytest", "phpunit", "jest", "vitest"]),
+    "lint": ("commands.style_check", ["lint", "style", "format", "fmt", "pint", "prettier",
+                                      "rubocop", "eslint", "cs", "csfix", "php-cs-fixer"]),
+    # Matching is exact, so tool names have to be listed as themselves: a script called `phpstan`
+    # is not caught by a hint of `stan`, and a loose substring match would catch `latest`.
+    "analyse": ("commands.static_analysis", ["analyse", "analyze", "typecheck", "types", "mypy",
+                                             "tsc", "phpstan", "psalm", "stan"]),
     "install": ("commands.dependency_install", ["install", "setup", "bootstrap", "deps"]),
     "up": ("commands.env_up", ["up", "start", "serve", "dev", "run"]),
 }
@@ -77,9 +81,13 @@ def unit_facts(unit: Path, root: Path):
     """What the unit declares about itself — the derivations the skill must not duplicate."""
     fw = unit / "framework"
     forms = fw / "templates" / "project-context"
+    try:
+        rel = str(unit.relative_to(root))
+    except ValueError:
+        rel = None                      # the unit is not vendored into this repository yet
     out = {
-        "path": str(unit.relative_to(root)) if unit != root else ".",
-        "anchor": f"./{unit.relative_to(root)}/" if unit != root else "./",
+        "path": rel if rel else f"{unit} (not vendored into this repository)",
+        "anchor": f"./{rel}/" if rel else "./knowledge-base/ (once vendored)",
         "version": (fw / "VERSION").read_text().strip() if (fw / "VERSION").is_file() else None,
         "context_files": sorted(p.name for p in forms.glob("*.md")) if forms.is_dir() else [],
         "members": [], "hosts": [], "artifact_kinds": [],
@@ -172,6 +180,17 @@ def scan(root: Path, unit: Path):
             if hit:
                 where, script = found[hit]
                 add(derived, key, script, f"{where}: {hit}")
+                break
+
+    # A test configuration without a script means the suite is run by convention. Name the
+    # convention as an assumption rather than leaving the key empty: empty reads as "no tests".
+    if not any(d["key"] == "commands.test" for d in derived):
+        for cfg, runner in (("phpunit.xml", "vendor/bin/phpunit"), ("phpunit.xml.dist", "vendor/bin/phpunit"),
+                            ("pytest.ini", "pytest"), ("tox.ini", "tox"), ("jest.config.js", "npx jest"),
+                            ("vitest.config.ts", "npx vitest run"), ("karma.conf.js", "npx karma start")):
+            if (root / cfg).is_file():
+                add(assumed, "commands.test", runner,
+                    f"{cfg} exists but no script declares the suite; this runner is the convention, not a statement")
                 break
 
     # --- runtimes and gates: presence only. What they contain is topology, and topology is a
