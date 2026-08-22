@@ -70,7 +70,7 @@ def fill_rows(text: str, values: dict, source: str):
         if "<" in cell:
             REPORT["unresolved"].append(f"{source}: {key}")
         return m.group(0)
-    return re.sub(r"^\| `([a-z_][a-z0-9_.]*)` \| ([^|]*) \|", sub, text, flags=re.M)
+    return re.sub(r"^\| `([a-z_][a-z0-9_.]*)` \|([^|]*)\|", sub, text, flags=re.M)
 
 
 def render_table(text: str, header_cells: int, rows, source: str, section: str = None):

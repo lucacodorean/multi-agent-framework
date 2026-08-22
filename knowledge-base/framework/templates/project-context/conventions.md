@@ -13,10 +13,10 @@ The framework mandates these two slots and never their content.
 
 | key | value |
 |---|---|
-| `conventions.boundary.interface_paths` | |
-| `conventions.boundary.formats` | |
-| `conventions.boundary.error_model` | |
-| `conventions.boundary.versioning` | |
+| `conventions.boundary.interface_paths` | <where published interfaces live> |
+| `conventions.boundary.formats` | <interface description formats> |
+| `conventions.boundary.error_model` | <the error shape every boundary answers with, or `none`> |
+| `conventions.boundary.versioning` | <where and how the interface version is stated, or `none`> |
 
 ## Enforcement
 

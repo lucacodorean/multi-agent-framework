@@ -116,7 +116,14 @@ if [ -n "$CTX" ]; then
   while IFS= read -r row; do
     case "$row" in *'framework/roster.md'*) continue;; esac
     for ph in $(printf '%s' "$row" | grep -oE '\{\{[a-z_]+\.[A-Za-z0-9_.]*(\[\])?\}\}' | tr -d '{}' | sed 's/\[\]$//'); do
-      grep -rqF "\`$ph\`" "$CTX"/ 2>/dev/null || { note "  contract documents '$ph' and no context file supplies it"; unsupplied=$((unsupplied+1)); }
+      val=$(grep -hE "^\| \`$ph\` \|" "$CTX"/*.md 2>/dev/null | head -1 | awk -F'|' '{print $3}' | sed 's/^ *//; s/ *$//')
+      if ! grep -rqF "\`$ph\`" "$CTX"/ 2>/dev/null; then
+        note "  contract documents '$ph' and no context file supplies it"; unsupplied=$((unsupplied+1))
+      elif printf '%s' "$val" | grep -qE '^$|^`?<[^>]*>`?$'; then
+        # an empty cell, or a cell holding only the form's own prompt, is an unfinished value —
+        # not a supplied one. A value that merely CONTAINS <an-argument> is fine.
+        note "  '$ph' is declared but not filled in (${val:-empty})"; unsupplied=$((unsupplied+1))
+      fi
     done
   done < <(grep '^| ' "$SCHEMA")
   [ "$unsupplied" -eq 0 ] && echo "  every documented key is supplied by the context"
