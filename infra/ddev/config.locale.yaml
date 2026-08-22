@@ -1,0 +1,11 @@
+# Platform-owned DDEV locale — source of truth for .ddev/config.locale.yaml.
+#
+# Copied verbatim into .ddev/ by infra/ddev/bootstrap.sh. Separate from config.yaml
+# because `ddev config` rewrites that file and would drop a hand-added web_environment
+# block. DDEV merges every .ddev/config.*.yaml, so this list survives a re-bootstrap.
+# Real container variables beat the volatile project `.env` (dotenv will not overwrite them).
+
+web_environment:
+  - APP_LOCALE=ro
+  - APP_FALLBACK_LOCALE=en
+  - APP_FAKER_LOCALE=en_US

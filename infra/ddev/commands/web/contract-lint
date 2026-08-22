@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+## Description: Lint every contract document (OpenAPI 3.1 + AsyncAPI 3.0) with Spectral
+## Usage: contract-lint [extra spectral args]
+## Example: "ddev contract-lint" or "ddev contract-lint --verbose"
+
+# Runs entirely inside the DDEV web container (which ships Node.js), so the HOST
+# needs only Docker + DDEV — never a host Node.js install. This is the machine half
+# of contract review; keep it the single blessed way to lint the boundary.
+#
+# Source of truth: infra/ddev/commands/web/contract-lint (copied to
+# .ddev/commands/web/ by infra/ddev/bootstrap.sh). Edit it there and re-copy, or just
+# re-run bootstrap.
+set -euo pipefail
+
+cd /var/www/html
+
+# Every spec in contract/ is linted — the set is a glob, not a hard-coded pair, so a
+# new boundary document (engine.openapi.yaml, and whatever follows) is covered the
+# moment it lands instead of silently escaping the gate. The glob does not match
+# dotfiles, so the ruleset itself (contract/.spectral.yaml) is excluded.
+shopt -s nullglob
+SPECS=(contract/*.yaml)
+if [[ ${#SPECS[@]} -eq 0 ]]; then
+  echo "error: no contract specs found in contract/*.yaml" >&2
+  exit 1
+fi
+
+echo "linting: ${SPECS[*]}"
+
+# The CLI patch is pinned, but npx resolves its TRANSITIVE rulesets freshly, so this run can
+# report an info the digest-pinned image in infra/ci/contract-lint.sh does not — measured, an
+# `asyncapi-latest-version` info on the same CLI version. CI is the reproducible run, this the
+# convenient one; they agree on errors and on warnings, which is why the CI gate ratchets on
+# warnings only.
+npx --yes @stoplight/spectral-cli@6.16.2 lint \
+  "${SPECS[@]}" \
+  --ruleset contract/.spectral.yaml "$@"

@@ -1,0 +1,80 @@
+# Document-engine service — stateless Python engine behind
+# contract/engine.openapi.yaml. INTERNAL DDEV NETWORK ONLY.
+#
+# SOURCE OF TRUTH: infra/ddev/docker-compose.engine.yaml. `.ddev/docker-compose.engine.yaml`
+# is a copy installed by infra/ddev/bootstrap.sh — edit HERE, then re-run bootstrap.
+#
+# Exposure posture (deliberate, and the ONE exemption from the project-wide
+# bind-all-interfaces decision in infra/README.md):
+#   * no `ports:`          — nothing is published on a host interface
+#   * no HTTP_EXPOSE / HTTPS_EXPOSE / VIRTUAL_HOST env — ddev-router never learns about
+#     this service, so there is no .ddev.site URL and no :80/:443 path to it
+#   * `expose:` only       — the intended access path is http://engine:8000 from this
+#     project's containers (the platform application is its sole client)
+# Adding any of the above is a contract violation (engine.openapi.yaml `servers`
+# documents this service as internal-only), not a convenience.
+#
+# What this does NOT buy: network-level unreachability. DDEV also attaches the container
+# to the SHARED `ddev_default` network (alias `engine`), and on Linux the host routes into
+# Docker bridge subnets — so the container's IPs answer from the host shell and from other
+# DDEV projects' containers. Verified; see infra/README.md → "Isolation". Real isolation is
+# network policy at deploy time; here, ENGINE_KEY and the VM firewall are the control.
+services:
+  engine:
+    container_name: ddev-${DDEV_SITENAME}-engine
+    build:
+      context: ./engine-build
+      dockerfile: Dockerfile
+    # DELIBERATELY NO `image:` KEY. A named image is a pullable image as far as Compose is
+    # concerned, and this one exists in no registry — so every pull pass over the file
+    # (`ddev start`'s own, `docker compose pull`, `up --pull`, a CI prefetch) resolved the
+    # name against Docker Hub and failed "pull access denied". A `pull_policy` in the file
+    # does not save it: DDEV passes a command-line `--policy`, which overrides the key.
+    # With no name to resolve, there is nothing to pull — Compose reports the service
+    # `Skipped  No image to be pulled` and builds from source — and it auto-names the build
+    # product `<compose-project>-engine`, i.e. `ddev-oir-flow-engine`. `container_name`
+    # below is a separate key and is unaffected: `docker restart ddev-<project>-engine`,
+    # the documented engine-reload step, keeps working.
+    hostname: engine
+    # These labels ensure this service is discoverable by ddev.
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}
+    restart: "no"
+    expose:
+      - 8000
+    volumes:
+      # Application source, read-only: dev edits on the host take effect on the next
+      # container restart, with no image rebuild. The image itself carries only the
+      # runtime (Python + LibreOffice + pinned deps) — see infra/README.md →
+      # engine — the document-engine service.
+      # NO mount is shared with `web`: the seam is bytes over HTTP
+      # (docs/document-engine-bridge.md → Exchange).
+      - "../engine:/app/engine:ro"
+    environment:
+      # DEV-ONLY DEFAULT — not a secret; override per environment (export ENGINE_KEY=... or
+      # ENGINE_KEY=... in .ddev/.env before `ddev start`). Unset or empty does NOT disable the
+      # check: it makes the deployment unservable — guarded operations answer 503 and GET
+      # /health answers 200 "degraded" (asserted by infra/ci/engine/unconfigured_probe.py).
+      ENGINE_KEY: ${ENGINE_KEY:-dev-only-insecure-engine-key}
+      # Default per-call LibreOffice conversion limit in seconds; a call may lower it
+      # via params.timeout.
+      ENGINE_PDF_TIMEOUT: ${ENGINE_PDF_TIMEOUT:-120}
+    # Liveness = the contract's own GET /health (unauthenticated by contract precisely
+    # so a probe can call it). curl is absent from python:*-slim, so the probe is
+    # stdlib urllib: urlopen raises on any non-2xx, which exits non-zero.
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    x-ddev:
+      describe-url-port: |
+        Internal only: no host port, no router entry
+      describe-info: |
+        Image: python:3.12.13-slim-bookworm + libreoffice-writer

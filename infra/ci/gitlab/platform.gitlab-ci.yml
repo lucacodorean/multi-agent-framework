@@ -1,0 +1,12 @@
+# Gate: platform (test stage). Thin wrapper over infra/ci/platform-suite.sh —
+# all gate logic lives in the script so the identical gate runs on a laptop.
+# Container-heavy: resource_group oir-flow-docker serializes it against the
+# other container gates (constant container names destroy each other).
+# No path filters (green-by-absence is a named defect). No Docker-in-Docker.
+# Owned by platform-engineer.
+
+platform:
+  stage: test
+  resource_group: oir-flow-docker
+  script:
+    - ./infra/ci/platform-suite.sh

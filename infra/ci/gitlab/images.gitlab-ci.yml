@@ -1,0 +1,26 @@
+# Gate: images (build stage). Images only — no compose up, no deploy, no
+# registry push, no secrets. Thin wrapper over infra/ci/deploy-stack.sh — all
+# gate logic lives in the script so the identical gate runs on a laptop.
+# Container-heavy: resource_group oir-flow-docker serializes it against the
+# test-stage container gates. Never `compose up` / `compose down` project
+# `oir-flow-preview` from this job (or by hand while a pipeline runs).
+# Branch-scoped: runs only on a push to develop or main — never on merge
+# request pipelines. Branch rules, not path filters (green-by-absence is a
+# named defect). No Docker-in-Docker. Owned by platform-engineer.
+
+images:
+  stage: build
+  resource_group: oir-flow-docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
+  needs:
+    - contract
+    - static-analysis
+    - env-contract
+    - adr-citations
+    - engine
+    - platform
+    - seam
+  script:
+    - ./infra/ci/deploy-stack.sh

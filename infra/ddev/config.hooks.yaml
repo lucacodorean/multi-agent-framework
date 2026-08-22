@@ -1,0 +1,12 @@
+# Platform-owned DDEV hooks — source of truth for .ddev/config.hooks.yaml, copied there
+# verbatim by infra/ddev/bootstrap.sh. A separate config file because bootstrap regenerates
+# config.yaml through `ddev config`; DDEV merges every .ddev/config.*.yaml.
+# The referenced script is not copied: the repository is bind-mounted at /var/www/html.
+
+hooks:
+  # Runs on every `ddev start`. Development-only, idempotent, gated three ways (each gate
+  # failing open to doing nothing), and ends in `tenants:drift-check` — the step that makes a
+  # green hook mean something. The rest is in the script header.
+  post-start:
+    - exec: infra/ddev/hooks/dev-install.sh
+      service: web

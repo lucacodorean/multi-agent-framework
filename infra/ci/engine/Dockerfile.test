@@ -1,0 +1,22 @@
+# The engine image plus pytest — CI ONLY, and never the image that serves.
+#
+# Built by infra/ci/engine-suite.sh FROM the very image the DDEV topology runs, so the suite
+# exercises the developer's engine and the served container never carries test tooling.
+# engine/ is not baked in either: it is bind-mounted at run time, as the dev topology mounts it.
+# The BASE_IMAGE default exists only so `docker build` has a base to report; the gate always
+# passes it explicitly.
+ARG BASE_IMAGE=oir-flow-engine-ci:latest
+FROM ${BASE_IMAGE}
+
+# Root only to install; the image drops back to the engine user below, so the suite runs
+# with the same privileges as the service it exercises.
+USER root
+COPY requirements-test.txt /tmp/requirements-test.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-test.txt && rm /tmp/requirements-test.txt
+USER engine
+
+# The suite's rootdir: engine/pyproject.toml sets `pythonpath = [".."]`, which resolves
+# to /app and makes `engine.app.main` importable without an install step — the same
+# arrangement the container WORKDIR gives uvicorn.
+WORKDIR /app/engine
+CMD ["python", "-m", "pytest", "-q"]

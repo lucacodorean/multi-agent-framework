@@ -1,0 +1,9 @@
+# Gate: contract (test stage). Thin wrapper over infra/ci/contract-lint.sh —
+# all gate logic lives in the script so the identical gate runs on a laptop.
+# No path filters (green-by-absence is a named defect).
+# Owned by platform-engineer.
+
+contract:
+  stage: test
+  script:
+    - ./infra/ci/contract-lint.sh

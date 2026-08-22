@@ -1,0 +1,10 @@
+# Gate: static-analysis (test stage). Thin wrapper over
+# infra/ci/static-analysis.sh — all gate logic lives in the script so the
+# identical gate runs on a laptop.
+# No path filters (green-by-absence is a named defect).
+# Owned by platform-engineer.
+
+static-analysis:
+  stage: test
+  script:
+    - ./infra/ci/static-analysis.sh
