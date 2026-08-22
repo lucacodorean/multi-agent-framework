@@ -23,11 +23,26 @@ in this order:
 2. **Something the core does not do** → an extension beside the core, never inside it (FI-26).
 3. **A defect in a rule** → a task to whoever maintains the core. Not a local fix.
 
-Enforcement is layered — filesystem lock, commit hook, per-host deny rules, and the
-validator's report. `framework/bin/lock-core.sh` installs and reports it. None of the layers
-is absolute against an agent with a shell; together they make a core edit deliberate and
-visible rather than accidental, which is the achievable goal (FI-22). Editing the core
+Publishing a core change is a second act beyond committing one: every engineer and every
+vendored copy downstream inherits it, so it is a release and is announced as one.
+
+Enforcement is layered, and each layer states what it actually stops:
+
+| layer | stops | defeated by |
+|---|---|---|
+| the host's instruction file | any agent that loads instructions — the only layer every agent reads | an agent that ignores them |
+| filesystem lock (`bin/lock-core.sh`) | every write, tool calls and shell alike | `lock-core.sh unlock` |
+| `pre-commit` hook | the change landing in history | `FRAMEWORK_UNLOCK=1`, `--no-verify` |
+| `pre-push` hook | the change reaching other engineers | `FRAMEWORK_PUBLISH=1`, `--no-verify` |
+| per-host deny rules | tool-call writes at the path (`framework/hosts/`) | writes through a shell |
+| validator check 6 | nothing — it reports the state of the others | nothing |
+
+No layer is absolute against an agent with a shell; together they make a core edit deliberate
+and visible rather than accidental, which is the achievable goal (FI-22). Editing the core
 *silently* is the violation.
+
+The rest of the unit is writable: knowledge-base documentation, and the examples — which may be
+added to or updated, and still bind nothing (FI-24).
 
 ## Extending without touching the core (FI-26)
 

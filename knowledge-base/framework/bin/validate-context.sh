@@ -8,8 +8,9 @@
 #      orders, and pins no model or effort (FI-09);
 #   4. reference integrity — every framework/ and project-context/ path cited resolves;
 #   5. example isolation — no core file depends on the content of a concrete example (FI-24);
-#   6. core protection — at least one layer is keeping the core read-only (FI-25), and any
-#      uncommitted core change is reported so it cannot be silent.
+#   6. core protection — the layers keeping the core read-only are in force (FI-25): the host's
+#      instruction file states the prohibition, the filesystem lock and both hooks are
+#      installed, and any uncommitted core change is reported so it cannot be silent.
 #
 # Usage: framework/bin/validate-context.sh [context-dir]
 #   With no argument: ./project-context if it exists, else the core is checked alone. An example
@@ -135,9 +136,21 @@ REPO=$(git rev-parse --show-toplevel 2>/dev/null || echo "$KB")
 WANT_HOOKS="${KB#"$REPO"/}/$CORE/bin/githooks"
 fs_locked=no; [ -w "$CORE/rules/invariants.md" ] || fs_locked=yes
 hook_on=no;   [ -n "$HOOKS" ] && [ "${HOOKS%/}" = "$WANT_HOOKS" ] && hook_on=yes
-echo "  filesystem lock: $fs_locked · commit hook: $hook_on"
+hooks_present=""
+for h in pre-commit pre-push; do
+  [ -x "$CORE/bin/githooks/$h" ] && hooks_present="$hooks_present $h" || note "  hook missing or not executable: $h"
+done
+# The instruction layer: the host's index-and-law file must carry the prohibition, so every
+# agent that loads instructions has read it. FI-25 is the marker.
+instr="none found"
+for f in ../CLAUDE.md ../AGENTS.md; do
+  [ -f "$f" ] || continue
+  if grep -q 'FI-25' "$f"; then instr="${f#../} states it"
+  else note "  ${f#../} does not state the core prohibition (FI-25) — the instruction layer is the only one every agent reads"; instr="${f#../} SILENT"; fi
+done
+echo "  filesystem lock: $fs_locked · hooks path: $hook_on ·$hooks_present · instruction: $instr"
 if [ "$fs_locked" = no ] && [ "$hook_on" = no ]; then
-  note "  nothing is protecting the core — run $CORE/bin/lock-core.sh lock"
+  note "  no mechanical layer is protecting the core — run $CORE/bin/lock-core.sh lock"
 fi
 dirty=$(git status --porcelain -- "$CORE" 2>/dev/null || true)
 if [ -n "$dirty" ]; then

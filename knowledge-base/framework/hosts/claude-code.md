@@ -72,6 +72,12 @@ every other host — never make a rule depend on it.
 
 Local filesystem only. Input files arrive at paths the user names; there is no upload directory.
 
+## Instruction file
+
+`CLAUDE.md` at the repository root, auto-loaded for every session and every dispatched agent.
+This is where the core prohibition is stated for this host (FI-25) — the only enforcement layer
+every agent reads. The validator checks that it carries the rule.
+
 ## Core protection
 
 Path-scoped deny rules in the harness settings are this host's layer of FI-25 — entries of the

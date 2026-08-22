@@ -7,7 +7,7 @@ its own documentation. Copy this directory into a host repository, keep it at
 | path | holds | writable |
 |---|---|---|
 | `framework/` | the core — rules, roles, contracts, templates, host adapters, scripts | **no** (FI-25) |
-| `examples/` | worked instantiations, reference only | no — binds nothing (FI-24) |
+| `examples/` | worked instantiations, reference only | yes — an example may be added or updated; it never becomes a rule (FI-24) |
 | `docs/` | documentation about this knowledge base | yes |
 
 ## Two rules that govern the unit
@@ -20,7 +20,13 @@ unit relocatable: vendor it anywhere and no citation changes. The scripts under
 **The core is read-only (FI-25).** A need that does not fit the core is answered in the
 project's context, or by an extension beside the core (FI-26), or by a task to whoever
 maintains the core — never by editing `framework/`. Install and inspect the enforcement with
-`framework/bin/lock-core.sh`.
+`framework/bin/lock-core.sh`; the host's instruction file carries the prohibition for every
+agent that loads instructions.
+
+Publishing a core change is a separate deliberate act from committing one: every engineer and
+every vendored copy downstream inherits it, so it is a release and is announced as one
+(`FRAMEWORK_PUBLISH=1`). Everything else in this unit is writable — `docs/` is where
+documentation about the framework goes.
 
 ## Vendoring into a host repository
 

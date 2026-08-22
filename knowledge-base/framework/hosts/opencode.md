@@ -41,6 +41,11 @@ Project-configured; state the mapping here when the project configures one.
 Not exposed. Expand the assigned effort in the dispatch prompt as behaviour, and mark the
 forfeit in the run manifest (FI-09).
 
+## Instruction file
+
+`AGENTS.md` at the repository root. State the core prohibition there for this host (FI-25); the
+validator looks for it.
+
 ## Core protection
 
 `permission: edit: deny` is per-binding, not per-path: it makes one agent read-only
