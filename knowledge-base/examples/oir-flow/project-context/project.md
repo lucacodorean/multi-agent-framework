@@ -12,5 +12,6 @@ Contract: `framework/contracts/project-context.schema.md` § project.md.
 | `project.tracker.host` | Jira |
 | `project.tracker.key_prefix` | `OIRP` |
 | `project.repo.default_branch` | `main` |
+| `kb.root` | `knowledge-base/` |
 | `project.architecture_doc` | `docs/architecture.md` |
 | `project.runbook_doc` | `docs/runbook.md` |

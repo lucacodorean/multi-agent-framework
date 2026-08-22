@@ -19,6 +19,7 @@ Notation: `{{a.b}}` scalar · `{{a.b[]}}` list · `{{a.b[].c}}` field of each li
 | `{{project.tracker.host}}` | tracker product, or `none` | `tracker-intake` |
 | `{{project.tracker.key_prefix}}` | issue-key prefix, or `none` → keys are minted | `tracker-intake`, `task-orchestrator` |
 | `{{project.repo.default_branch}}` | branch a review diffs against | `code-reviewer` role |
+| `{{kb.root}}` | where this knowledge base sits in the host repository — the anchor every file outside the unit cites (FI-27). Stated here once, and restated in the host's instruction file so an agent can resolve it without opening the context | the host's mounted skills, the repository index |
 
 ## `project-context/roster.md` — members and topology
 

@@ -18,7 +18,7 @@ wins.** Every step below exists to enforce that.
 Operate on documentation loaded or referenced during development: the paths in
 `{{docs.write_paths[]}}`, plus the project's index-and-law file, READMEs and agent
 instruction files. Exclude source code, generated artifacts, and third-party docs.
-Framework-core files (`knowledge-base/framework/**`) are out of scope: they are compacted by their
+Framework-core files (`{{kb.root}}/framework/**`) are out of scope: they are compacted by their
 maintainers, not per project.
  
 If the user names specific files, restrict to those. If not, discover the set

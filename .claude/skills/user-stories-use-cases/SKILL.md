@@ -20,7 +20,7 @@ These matter more than the templates:
 ### Step 1 — Ingest the input
 
 - If the input is pasted text, use it directly.
-- If files were uploaded, read them from wherever this host delivers them (`knowledge-base/framework/hosts/` § File I/O; on a filesystem host that is the path the user names). Extract text from binary document formats as needed.
+- If files were uploaded, read them from wherever this host delivers them (`{{kb.root}}/framework/hosts/` § File I/O; on a filesystem host that is the path the user names). Extract text from binary document formats as needed.
 - If multiple sources are provided, treat them as one corpus but track which source each item came from.
 - If the user references input that isn't actually present (no paste, no file), say so and ask for it — don't fabricate.
 ### Step 2 — Assess
@@ -125,7 +125,7 @@ ALWAYS use this template (omit sections that are genuinely empty, keep the order
 - **Rich, detailed input** (formal spec, RFP): extract comprehensively; the deliverable may be long. Keep the traceability matrix — it's most valuable here.
 - **Sparse input** (a two-line feature idea): produce the few stories the input supports, mark the rest of the structure with explicit gaps, and lead with open questions. Do not inflate two lines into a fictional 20-story backlog. Offer to expand once questions are answered.
 - **Conversational input** (meeting notes, transcripts): requirements will be scattered and contradictory. Resolve contradictions by recency when the input shows a decision superseding an earlier one; otherwise flag the contradiction as an open question.
-- **Input in another language**: assess in `{{project.input_language}}`, write the deliverable in `{{project.docs_language}}`, and keep acceptance criteria in the input's language (`knowledge-base/framework/rules/documentation-governance.md`). Keep domain terms from the source where translation would lose precision — `project-context/glossary.md` holds them.
+- **Input in another language**: assess in `{{project.input_language}}`, write the deliverable in `{{project.docs_language}}`, and keep acceptance criteria in the input's language (`{{kb.root}}/framework/rules/documentation-governance.md`). Keep domain terms from the source where translation would lose precision — `project-context/glossary.md` holds them.
 ## Interaction notes
 
 - If the user answers open questions in a follow-up, update the deliverable in place: convert answered Q-items into stories/criteria/assumptions, keep IDs stable, and append new IDs rather than renumbering.

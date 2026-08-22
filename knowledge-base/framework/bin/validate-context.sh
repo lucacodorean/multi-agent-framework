@@ -9,8 +9,10 @@
 #   4. reference integrity — every framework/ and project-context/ path cited resolves;
 #   5. example isolation — no core file depends on the content of a concrete example (FI-24);
 #   6. core protection — the layers keeping the core read-only are in force (FI-25): the host's
-#      instruction file states the prohibition, the filesystem lock and both hooks are
-#      installed, and any uncommitted core change is reported so it cannot be silent.
+#      instruction file states the prohibition and the example gate (FI-24), the filesystem lock
+#      and both hooks are installed, and any uncommitted core change is reported so it cannot be
+#      silent;
+#   7. anchors — the extension index exists (FI-26) and {{kb.root}} resolves (FI-27).
 #
 # Usage: framework/bin/validate-context.sh [context-dir]
 #   With no argument: ./project-context if it exists, else the core is checked alone. An example
@@ -145,8 +147,10 @@ done
 instr="none found"
 for f in ../CLAUDE.md ../AGENTS.md; do
   [ -f "$f" ] || continue
-  if grep -q 'FI-25' "$f"; then instr="${f#../} states it"
-  else note "  ${f#../} does not state the core prohibition (FI-25) — the instruction layer is the only one every agent reads"; instr="${f#../} SILENT"; fi
+  instr="${f#../}"
+  grep -q 'FI-25' "$f" || note "  $instr does not state the core prohibition (FI-25) — the instruction layer is the only one every agent reads"
+  grep -q 'FI-24' "$f" || note "  $instr does not state the example read-gate (FI-24) — nothing else can enforce a gate on reading"
+  grep -q 'EXAMPLE-ACCESS' "$f" || note "  $instr does not name the EXAMPLE-ACCESS grant — an unnamed grant cannot be carried in a task prompt"
 done
 echo "  filesystem lock: $fs_locked · hooks path: $hook_on ·$hooks_present · instruction: $instr"
 if [ "$fs_locked" = no ] && [ "$hook_on" = no ]; then
@@ -159,6 +163,37 @@ if [ -n "$dirty" ]; then
 else
   echo "  no uncommitted core changes"
 fi
+
+echo "== 7. anchors"
+# FI-26: one index, or extensions are untraceable.
+if [ -f extensions/README.md ]; then
+  # count data rows only: not the header, not the separator, not the em-dash placeholder
+  rows=$(awk -F'|' '/^\| extension \|/{h=1;next} h&&/^\|/{c=$2;gsub(/[ \t]/,"",c);
+         if(c!=""&&c!~/^-+$/&&c!="\xe2\x80\x94")n++} END{print n+0}' extensions/README.md)
+  echo "  extension index: present, $rows extension(s) listed"
+elif [ -d extensions ]; then
+  note "  extensions/ exists with no README.md index — every extension must be traceable (FI-26)"
+else
+  echo "  extension index: none, and no extensions/ directory"
+fi
+# FI-27: the anchor must resolve to this directory, and be findable without opening the context.
+anchor=$(basename "$KB")
+if [ -n "$CTX" ] && [ -f "$CTX/project.md" ]; then
+  declared=$(grep -oE '^\| `kb\.root` \| `[^`]+`' "$CTX/project.md" | grep -oE '`[^`]+`$' | tr -d '`/')
+  if [ -z "$declared" ]; then
+    note "  the context declares no kb.root — files outside the unit have no anchor to cite (FI-27)"
+  elif [ "$declared" != "$anchor" ]; then
+    note "  kb.root is declared '$declared' but this unit sits at '$anchor'"
+  else
+    echo "  kb.root: '$anchor', declared and matching"
+  fi
+else
+  echo "  kb.root: '$anchor' (no context to check the declaration against)"
+fi
+for f in ../CLAUDE.md ../AGENTS.md; do
+  [ -f "$f" ] || continue
+  grep -q "kb.root" "$f" || note "  ${f#../} does not state where {{kb.root}} points — a mounted skill cannot resolve it (FI-27)"
+done
 
 echo
 [ "$fail" -eq 0 ] && echo "PASS" || echo "FINDINGS — see above"

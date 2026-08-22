@@ -12,3 +12,4 @@ Contract: `framework/contracts/project-context.schema.md` § project.md.
 | `project.tracker.host` | <tracker product, or `none`> |
 | `project.tracker.key_prefix` | <issue-key prefix, or `none` → keys are minted> |
 | `project.repo.default_branch` | <branch a review diffs against> |
+| `kb.root` | <path to this knowledge base in the host repository; the anchor outside files cite (FI-27)> |

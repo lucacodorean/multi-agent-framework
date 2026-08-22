@@ -43,9 +43,17 @@ FRAMEWORK_PUBLISH=1 git push ...                     # only when releasing it
 knowledge-base/framework/bin/lock-core.sh lock       # always leave it locked
 ```
 
-The rest of the knowledge base is writable: `knowledge-base/docs/` is where documentation about
-the framework goes, and `knowledge-base/examples/` may gain or lose an example. Writable is not
-the same as binding — an example never becomes a rule (FI-24).
+The rest of the knowledge base is writable, and is where the work happens:
+
+- `knowledge-base/docs/` — the project's knowledge: decision records, tracker intake, review
+  reports, stories, business and domain material. Agents read here for information and write
+  here to record it. A file belongs to a declared kind with a declared path and lifecycle
+  (`knowledge-base/framework/rules/doc-artifact-registry.md`); summary, notes and handoff files
+  are not a kind (FI-02).
+- `knowledge-base/extensions/` — additions to the framework made without editing it, each
+  listed in `knowledge-base/extensions/README.md` (FI-26).
+- `knowledge-base/examples/` — writable, binding nothing, and **read-gated**: open it only when
+  the task prompt carries `EXAMPLE-ACCESS:` naming what is needed from it (FI-24).
 
 This file is one of the enforcement layers, and the only one every agent reads. The others are
 the filesystem lock, the `pre-commit` and `pre-push` hooks, per-host deny rules, and the
@@ -54,11 +62,15 @@ is the violation.
 
 ## 1. The other two rules that shape the repository
 
-- **Paths inside the unit are knowledge-base-relative (FI-27).** A file under
-  `knowledge-base/` cites `framework/rules/…`, never `knowledge-base/framework/rules/…`. Files
-  outside the unit — this file, `README.md`, the mounted skills — use the full vendor path.
-- **Examples bind nothing (FI-24).** `knowledge-base/examples/**` is read when a task names it
-  and never becomes precedent. The validator does not read it unless told to.
+- **`{{kb.root}}` is `knowledge-base/`.** That is the anchor, and this line is where an agent
+  resolves it. A mounted skill or any other file outside the unit cites
+  `{{kb.root}}/framework/…`; a file inside the unit cites `framework/…`, knowledge-base-relative
+  (FI-27).
+- **Examples are read-gated and bind nothing (FI-24).** Open `knowledge-base/examples/**` only
+  when the task prompt carries the grant `EXAMPLE-ACCESS:` naming what is needed from it.
+  Without the grant, do not read it — not to check a convention, not to copy a shape, not to
+  settle an ambiguity in a rule. It never becomes precedent, and the validator does not read it
+  unless told to.
 
 ## 2. Layout and ownership
 

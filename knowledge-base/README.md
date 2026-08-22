@@ -7,10 +7,24 @@ its own documentation. Copy this directory into a host repository, keep it at
 | path | holds | writable |
 |---|---|---|
 | `framework/` | the core — rules, roles, contracts, templates, host adapters, scripts | **no** (FI-25) |
-| `examples/` | worked instantiations, reference only | yes — an example may be added or updated; it never becomes a rule (FI-24) |
-| `docs/` | documentation about this knowledge base | yes |
+| `docs/` | the project's knowledge: decision records, tracker intake, review reports, stories, business and domain material | yes — this is where agents read and record |
+| `extensions/` | additions to the framework made without editing it, and their index | yes (FI-26) |
+| `examples/` | worked instantiations, reference only | yes to write, **gated to read** (FI-24) |
 
-## Two rules that govern the unit
+## Where the anchor points
+
+`{{kb.root}}` resolves to this directory. It is stated once in the project's context
+(`kb.root`) and restated in the host's instruction file, so an agent that meets
+`{{kb.root}}/framework/rules/...` in a mounted skill can resolve it without opening the
+context. Files *inside* the unit never use the anchor — they are knowledge-base-relative
+(FI-27).
+
+## Three rules that govern the unit
+
+**Examples are read-gated (FI-24).** `examples/**` is opened only when the task prompt carries
+the grant `EXAMPLE-ACCESS:` naming what is needed from it. Without the grant it is not read at
+all — not to check a convention, not to copy a shape. It is writable and it binds nothing;
+those are different properties from being readable on a whim.
 
 **Paths are knowledge-base-relative (FI-27).** Every citation in every file here resolves from
 this directory, never from the repository root and never absolutely. That is what makes the

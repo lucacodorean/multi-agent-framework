@@ -1,7 +1,10 @@
 # Host adapter — Grok
 
-Contract: `framework/contracts/host-adapter.schema.md`. Declared, not yet built out: no
-`.grok/` bindings exist in this repository.
+Contract: `framework/contracts/host-adapter.schema.md`.
+
+**Optional, and not built out.** This adapter is a placeholder: no `.grok/` bindings exist, and
+every field below marked unrecorded must be filled before anything is rendered for this host.
+Nothing in the framework depends on it.
 
 ## Mount points
 

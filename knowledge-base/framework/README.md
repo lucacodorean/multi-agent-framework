@@ -12,7 +12,8 @@ Project Artifacts  the host repository's index, docs and code
 ```
 
 Paths in this unit are knowledge-base-relative (FI-27): `framework/rules/…`, never
-`knowledge-base/framework/rules/…`. Files outside the unit reach in by the vendor path.
+`knowledge-base/framework/rules/…`. Files outside the unit cite `{{kb.root}}`, the anchor the
+project declares once and the host's instruction file restates.
 
 ## The core is read-only (FI-25)
 
@@ -34,15 +35,26 @@ Enforcement is layered, and each layer states what it actually stops:
 | filesystem lock (`bin/lock-core.sh`) | every write, tool calls and shell alike | `lock-core.sh unlock` |
 | `pre-commit` hook | the change landing in history | `FRAMEWORK_UNLOCK=1`, `--no-verify` |
 | `pre-push` hook | the change reaching other engineers | `FRAMEWORK_PUBLISH=1`, `--no-verify` |
-| per-host deny rules | tool-call writes at the path (`framework/hosts/`) | writes through a shell |
+| per-host deny rules | tool calls at the path, and shell writes the host recognizes as writes — measured 2026-08-22: a `deny` entry refuses outright and never prompts | a write form the matcher does not recognize |
 | validator check 6 | nothing — it reports the state of the others | nothing |
 
 No layer is absolute against an agent with a shell; together they make a core edit deliberate
 and visible rather than accidental, which is the achievable goal (FI-22). Editing the core
 *silently* is the violation.
 
-The rest of the unit is writable: knowledge-base documentation, and the examples — which may be
-added to or updated, and still bind nothing (FI-24).
+Deliberate core maintenance is a human act, not an agent's. `lock-core.sh unlock` lifts the
+filesystem bit only: a host `deny` rule still refuses the write, and by design nothing an agent
+can do lifts it. Someone with access to the host settings lifts the rule, or makes the edit
+themselves. Then `FRAMEWORK_UNLOCK=1` on the commit, `FRAMEWORK_PUBLISH=1` on the release, and
+`lock-core.sh lock` to leave it locked. Lifting a rule and not restoring it is how the guarantee
+dies quietly.
+
+The rest of the unit is writable, and is where the work happens: `docs/` holds the project's
+knowledge — decision records, tracker intake, review reports, stories, business and domain
+material — read by agents for information and written by them to record it; `extensions/` holds
+additions made without editing the core, each in its index (FI-26); `examples/` may be added to
+or updated, binds nothing, and is **read-gated** — opened only with an `EXAMPLE-ACCESS:` grant
+in the task prompt (FI-24).
 
 ## Extending without touching the core (FI-26)
 
@@ -71,12 +83,14 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `framework/roles/` | role charters — one per role kind, plus the shared standing orders | by framework maintainers only |
 | `framework/hosts/` | one adapter per agent harness (Claude Code, opencode, Grok) | by framework maintainers only |
 | `framework/templates/` | project-context templates, agent-binding template, `CLAUDE.md` template, workflow-script template | by framework maintainers only |
-| `framework/bin/` | `validate-context.sh` — contract completeness + core purity | by framework maintainers only |
+| `framework/bin/` | `validate-context.sh` (six checks) and `lock-core.sh` (the read-only layers) | by framework maintainers only |
 | the host's mounted skills | generic skills; they live at the **host repository root**, not in this unit, because a harness discovers them only there (`framework/hosts/`) | by framework maintainers only |
 | `project-context/` | every value that changes between projects; created at instantiation — absent in the framework repository itself | **by the project** |
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |
-| `examples/<project>/` | one worked instantiation, read-only reference | nobody — it binds nothing (FI-24) |
-| `CLAUDE.md`, `docs/**`, `infra/**` | project artifacts | **by the project** |
+| `docs/` | the project's knowledge, per the artifact registry | **by the project** |
+| `extensions/<name>/` | additions made without editing the core, indexed in `extensions/README.md` | **by the project** |
+| `examples/<project>/` | worked instantiations; read-gated, binding nothing (FI-24) | **by the project** |
+| the host's index-and-law file, its code and its infrastructure | project artifacts outside the unit | **by the project** |
 
 ## Ownership
 

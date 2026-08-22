@@ -1,23 +1,36 @@
 # Knowledge-base documentation
 
-Documentation *about* this knowledge base: how to use the framework, why its rules are shaped
-the way they are, and decisions taken about the unit itself.
+The project's knowledge lives here: the documents agents read to do the work, and write to
+record it. Decision records, tracker intake documents, review reports, stories, and the
+business and domain material the work is based on.
 
-Not for project documentation. A consuming project's architecture, runbook, decisions and
-stories live in that project's own tree, governed by its context
-(`framework/rules/documentation-governance.md`).
+This is a working directory, not an archive. Agents read it for information and write to it as
+work lands. Creating a new file is normal — within the limits below.
 
-## What belongs here
+## What governs a file here
 
-| kind | contents |
+| question | answer lives in |
 |---|---|
-| guides | how to instantiate, how to extend, how to vendor and update |
-| decisions | records of decisions about the framework itself — the rules, the contract, the enforcement model |
-| notes on the corpus | measurements, audits and analyses of the framework's own state |
+| which kinds of document may exist, and where each one is filed | the project's docs policy — `docs.artifact_types` and `docs.write_paths` |
+| what each kind's lifecycle is — immutable, living, snapshot, sole record, dated snapshot, transit, append-only | `framework/rules/doc-artifact-registry.md` |
+| who may write, and how a worker reports a doc-impact instead of writing | `framework/rules/documentation-governance.md` |
+| whether a new file needs a human naming it | FI-20 — unless its kind carries a standing authorization in the registry, in which case deterministic paths need no instruction |
 
-Lifecycles and identifier discipline follow `framework/rules/doc-artifact-registry.md`, the
-same registry a project uses. A new file here follows FI-20: an explicit instruction naming it,
-unless a registry entry records a standing authorization.
+That is what keeps "creating files as needed" from becoming clutter: a file belongs to a
+declared kind with a declared path and lifecycle, or it needs a human to name it. Summary,
+notes, progress and handoff files are not a kind — they never were, and FI-02 still holds.
 
-Written by whoever maintains the knowledge base. This directory is outside `framework/`, so
-writing here is not a core edit (FI-25).
+## Typical contents
+
+| kind | what it holds |
+|---|---|
+| decision records | one decision per file, immutable once accepted; supersede rather than edit |
+| tracker intake | normalized work items, orchestrator-ready; transit, kept for traceability |
+| review reports | dated snapshots of what a review found; retire a finding in place |
+| stories | current intent, living; acceptance criteria in the input's language |
+| business and domain material | what the work is based on; sole record — write once, supersede, never regenerate over |
+| the intake channel | the append-only file every worker reports doc-impact to |
+
+Documentation *about the framework itself* — how to instantiate it, why a rule is shaped the
+way it is — belongs here too, under the same registry. The framework's own rules do not: they
+are core, and core is read-only (FI-25).
