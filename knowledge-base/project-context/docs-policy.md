@@ -34,6 +34,15 @@ authorized whitelist — a file written there is unauthorized, not merely undocu
 |---|---|---|---|---|---|
 | <type> | <pattern> | <member> | human-per-file \| standing:<path> \| none | <lifecycle> | <or none> |
 
+## Removed documents
+
+`docs.removed` — one row per document removed from the tree, so a citation that no longer
+resolves has an explanation (`framework/rules/documentation-governance.md` § Removed documents).
+
+| document | removed | recover from |
+|---|---|---|
+| <path> | <YYYY-MM-DD> | <version history / superseding document> |
+
 ## Read-gated paths
 
 `docs.read_gated`:

@@ -14,7 +14,7 @@ The framework fixes what each lifecycle means.
 | `living` | current state only. Updated in place as intent changes, deleted when its scope is dropped. No tombstones — version history is the archive. | FI-19 |
 | `snapshot` | re-derivable from a source that still exists. Regenerate to replace; never hand-edit. | FI-19 |
 | `sole-record` | not re-derivable — a paste, a verbal decision, a screenshot. Write once; supersede with a later document; never regenerate over it. | FI-19 |
-| `dated-snapshot` | a judgement about a moment. Retire a finding in place by adding a status line and bumping its date; never rewrite a finding body or a header count — they state what was found on that date, and a retired finding may hold claims that are no longer true. | FI-19 |
+| `dated-snapshot` | a judgement about a moment. Retire a finding in place: add a status line and bump its date. Never rewrite a finding body, the closing block, or the header counts — they state what was found on that date. A retired finding may hold claims that are no longer true, **and that is intended**: correcting it destroys the record of what was believed when the judgement was made. | FI-19 |
 | `transit` | data in, orchestrator-ready output out. Keep every file for traceability; never prune. Regeneration follows the input class above. | FI-19 |
 | `append-only` | appended to by many, drained and truncated by the doc writer alone. Never edit or remove an existing entry. | FI-02 |
 

@@ -43,6 +43,10 @@ Invoked only at orchestration checkpoints, under the role gate. Sole doc writer.
 `{{docs.write_paths[]}}` — canonical there and nowhere else. Writing outside it is a task
 failure. A path granted in any other file is not a grant (FI-01).
 
+The host's index-and-law file is deliberately outside that list: it is writable only when the
+human's instruction for **this** invocation explicitly says so. It is the file every agent
+loads, so an unrequested edit to it changes how every future session behaves.
+
 ### Procedure per invocation
 
 1. Read `{{docs.worker_channel}}`. Each entry is a claim: verify it against its SOURCE before
@@ -74,6 +78,18 @@ failure. A path granted in any other file is not a grant (FI-01).
 
 Count tokens as `{{docs.metric}}`. No other metric counts. Per-file allowances:
 `{{docs.write_paths[]}}`. On overrun, FI-18.
+
+## Removed documents
+
+A document removed from the tree is recorded — what was removed, on what date, and that it is
+recoverable from version history. The project's list lives with its policy
+(`project-context/docs-policy.md`).
+
+The record exists because code, configuration, tests and other documents keep citing a file
+after it is gone, and the citation then resolves to nothing. Recording the removal turns a
+dangling citation into an explanation instead of a mystery, and stops the next agent recreating
+the file from inference. Recreation follows the rule below: explicit human instruction, never
+agent judgement.
 
 ## New documentation topics
 
