@@ -1,104 +1,63 @@
-# CLAUDE.md — OIR Flow
+# CLAUDE.md — multi-agent framework
 
-Multi-tenant CR/CP sampling platform: a Laravel platform and a stateless Python document
-engine, coupled only through `contract/`. Code is the source of truth. This file is the
-index and the law; canonical docs hold the depth.
+This repository is the **framework itself**, not a project built with it. It ships a
+project-agnostic multi-agent operating system and the templates that instantiate it.
 
-## 1. Repository layout
+```
+Framework Core   framework/**, .claude/skills/**   placeholders only, no project facts
+      ↓ consumes
+Project Context  project-context/**                created at instantiation, not present here
+      ↓ describes
+Project          the adopting repository
+```
 
-Canonical: `docs/architecture.md`. Owners: ratified roster, ch. 2. Platform ↔ engine seam:
-`docs/document-engine-bridge.md`.
+Read `framework/README.md` first, then `framework/rules/invariants.md` — those 23 invariants
+are the acceptance criteria for every change made here.
 
-| path | contents | owner |
+## 1. Layout
+
+| path | contents | rule |
 |---|---|---|
-| `contract/` | OpenAPI 3.1 ×2, AsyncAPI 3.0, `.spectral.yaml` — the only coupling point | contract-owner |
-| `app/` `routes/` `resources/` `public/` `bootstrap/` `tests/` | Laravel platform: domain, two Filament panels, Pest suite — minus data carve-outs (ch. 2) | domain-engineer |
-| `app/Engine/` | engine bridge client (consumer half of the seam) | domain-engineer |
-| `database/` | central + tenant migrations (`migrations/tenant/`), factories, seeders | data-engineer |
-| `app/Tenancy/` + carve-outs | schema-per-tenant mechanism living where Laravel puts it | data-engineer |
-| `config/` | owned per file: `tenancy.php` data; `engine.php` and the rest domain | per file |
-| `engine/` | stateless FastAPI document engine, black-box tests, vendored prototype modules | engine-engineer |
-| `infra/` | runtime-agnostic inputs (`infra/shared/`), per-runtime sources of truth (`infra/ddev/`, `infra/deploy/`), CI gate scripts (`infra/ci/`) — minus the docs carve-out (ch. 2) | platform-engineer |
-| `.ddev/` `.github/` | generated DDEV config; five CI workflows | platform-engineer |
-| `.claude/` `.grok/` | harness directories — one per orchestrating agent (Claude, Grok) | the named agent |
-| `CLAUDE.md` `docs/` `infra/README.md` | active documentation | docs-agent |
-| root tooling | `phpunit.xml` `phpstan.neon` `captainhook.json` dotfiles → platform; `composer.json` `package.json` `vite.config.js` `artisan` → domain | per file |
+| `framework/rules/` | invariants, orchestration, engagement, working agreement, doc governance, artifact registry, CI gates, runtime topology | each rule lives in exactly one file; others point at it (FI-01) |
+| `framework/roles/` | role charters + the one shared standing-orders block | a charter states duties, never a project's paths or stack |
+| `framework/contracts/` | the project-context contract, the host-adapter contract, the agent-binding contract | the contract is the only list of placeholders |
+| `framework/templates/` | project-context templates, `CLAUDE.md`, agent binding, pipeline script, artifact templates | what an adopting project copies and fills |
+| `framework/hosts/` | one adapter per harness — the only files allowed to name a harness | capability claims carry the date they were verified |
+| `framework/bin/` | `validate-context.sh` | run it before reporting any change here as done |
+| `.claude/skills/` | generic skills: `task-orchestrator`, `tracker-intake`, `docs-compaction`, `user-stories-use-cases` | host-mounted because the harness discovers them there; framework-owned |
+| `examples/oir-flow/` | one worked instantiation, read-only reference | binds nothing; never cite it as a rule |
+| `prompts/` | the prompts and analyses that produced this split | working material |
 
-## 2. Team roster (ratified 2026-08-11)
+`.claude/settings.json` and `.claude/statusline.sh` are operator configuration, not core.
 
-Canonical: this chapter. Every path maps to exactly one owner; git-ignored artifacts
-(`vendor/`, `node_modules/`, `storage/` runtime, `.env`, `engine/.venv`) follow the owner
-of their source manifest. Harness directories (`.claude/**`, `.grok/**`, any future
-`.<agent>/`) belong to the orchestrating agent of that name — outside the roster; no
-member writes them; each agent writes only its own.
+## 2. The rule that makes this work
 
-| member | owns (writes) | everything else |
-|---|---|---|
-| contract-owner | `contract/**` | readonly |
-| domain-engineer | `app/**` `routes/**` `resources/**` `public/**` `bootstrap/**` `tests/**` minus data carve-outs · `config/**` minus `tenancy.php` · `composer.json` `composer.lock` `package.json` `vite.config.js` `artisan` | readonly |
-| data-engineer | `database/**` · `config/tenancy.php` · carve-outs: `app/Tenancy/**`, `app/Models/{Tenant,TenantLifecycleEvent,TenantMetricSnapshot}.php`, `app/Enums/TenantStatus.php`, `app/Providers/TenancyServiceProvider.php`, `app/Console/Commands/Tenants*.php`, `app/Http/Middleware/EnsureTenantIsAccessible.php`, `app/RiskRegister/Storage/**`, `tests/Feature/Tenancy/**`, `tests/Fixtures/tenant-migrations-broken/**` | readonly |
-| engine-engineer | `engine/**` | readonly |
-| platform-engineer | `infra/**` minus the carve-out `infra/README.md` · `.ddev/**` · `.github/**` · `phpunit.xml` `phpstan.neon` `captainhook.json` `.editorconfig` `.env.example` `.gitattributes` `.gitignore` `.npmrc` | readonly |
-| docs-agent | `docs/**` per governance whitelist · carve-out: `infra/README.md`; `CLAUDE.md` only on explicit human instruction | readonly |
+A core file carries `{{placeholders}}`; every placeholder resolves to exactly one entry in
+`framework/contracts/project-context.schema.md`. A project name, path, version, command or
+domain term stated directly in a core file is a defect (FI-23) — `validate-context.sh` fails
+on it.
 
-Tier order: contract-owner → domain-engineer → data-engineer → platform-engineer.
-engine-engineer is a provider bounded context beside the tiers, reached only through
-`contract/engine.openapi.yaml` (`.claude/agents/engine-engineer.md`).
+## 3. Changing the framework
 
-## 3. Rules of engagement (non-negotiable)
-
-Canonical: `docs/conventions/rules-of-engagement.md`. Code-level discipline:
-`docs/conventions/engineering-principles.md`. Structural discipline:
-`docs/conventions/architecture-principles.md`.
-
-- Contract-first across members: no cross-member dependency without an agreed contract
-  (interface, schema, or API definition) before implementation.
-- Tier direction holds between members.
-- Cross-tier work coordinates via tasks/messages through the contract-owner — never by
-  directly editing another member's files.
+- Add a rule in exactly one file and point at it from everywhere it binds.
+- A new placeholder is added to the contract in the same change that first consumes it.
+- A role charter gains a duty only if that duty holds for every project. Otherwise it belongs
+  in a member record — `framework/templates/project-context/roster.md`.
+- A harness name appears only under `framework/hosts/`.
+- Run `framework/bin/validate-context.sh` (and once against
+  `examples/oir-flow/project-context`) before reporting done.
 
 ## 4. Working agreement
 
-Canonical: `docs/conventions/working-agreement.md`.
+`framework/rules/working-agreement.md` binds work here too:
 
-- Members are fully autonomous within their task.
-- Never push to git.
-- Commit only on explicit request.
+- Never push. Commit only on explicit request.
 - Destructive operations require an explicit user-approved task.
+- Report outcomes faithfully — failures as failures, with output; skipped steps named as
+  skipped.
 
-## 5. Orchestration model
+## 5. Instantiating a project
 
-Canonical: `docs/conventions/orchestration.md`.
-
-- Route most build work through the roster.
-- Use the `Workflow` tool for deterministic multi-member orchestration.
-- Track cross-member work as tasks/messages.
-- Use worktree isolation when members mutate files in parallel within the same tier.
-- Model & effort are assigned at dispatch time, not in agent definitions.
-- The lead integrates results, verifies against contract, and reports to the user.
-
-## 6. Environment & commands
-
-Canonical: `docs/runbook.md` — every command, per runtime, with its verification status.
-This file names no command; read them there.
-
-- Runtime contents and ports: local `docs/topology/local.md`, preview
-  `docs/topology/preview.md`. CI host: `docs/ci/gitlab.md`.
-- Host needs Docker plus the CLI of the runtime being used; every tool runs in a container.
-- Gate set and its rules: `docs/architecture.md` § CI — gates.
-- Gate serialization on a machine: `docs/runbook.md` § CI gates.
-- Verify a topology change by a full boot of that runtime, never a restart.
-
-## 7. Documentation governance
-
-Canonical: `docs/conventions/documentation-governance.md`.
-
-@docs/conventions/documentation-governance.md
-
-- Every agent is a worker by default; workers never write `.md` — their only channel is
-  appending to `docs/_intake.md`.
-- The docs-agent is the sole doc writer, inside the whitelist that governance holds
-  (§ Allowed write paths — the only copy); `CLAUDE.md` only on explicit human
-  instruction.
-- `docs/stories/as-reference/` is read-forbidden without a `HISTORY-ACCESS:` grant in the
-  task prompt, and writable by no one (`docs/stories/README.md`).
+The six steps in `framework/README.md` § Initializing a project. Instantiation writes
+`project-context/**`, one binding per member per host, the index-and-law file, and the two
+project-owned convention files — and nothing under `framework/`.
