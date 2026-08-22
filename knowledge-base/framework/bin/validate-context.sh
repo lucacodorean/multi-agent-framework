@@ -32,11 +32,13 @@ readonly KB
 cd "$KB" || exit 2
 
 SCHEMA=framework/contracts/project-context.schema.md
-# The set of context files is declared once, by the contract's own section headings. Deriving it
-# here instead of repeating it means a context file added, renamed or dropped lands in one place
-# (FI-01).
-context_files() {
-  grep -oE '^## `project-context/[a-z-]+\.md`' "$SCHEMA" | grep -oE '[a-z-]+\.md'
+FORMS=framework/templates/project-context
+# The context file set is a STRUCTURAL fact, not a textual one: one blank form per context file,
+# and instantiation copies from them. Deriving from the directory means nothing is parsed out of
+# prose, and the contract's sections become a cross-check rather than the source (FI-01).
+context_files() { find "$FORMS" -maxdepth 1 -name '*.md' -printf '%f\n' 2>/dev/null | sort; }
+contract_sections() {
+  grep -oE '^## `project-context/[a-z-]+\.md`' "$SCHEMA" | grep -oE '[a-z-]+\.md' | sort
 }
 fail=0
 note() { printf '%s\n' "$*"; fail=1; }
@@ -76,17 +78,28 @@ else
   echo "  context: $CTX"
   declared=$(context_files)
   if [ -z "$declared" ]; then
-    note "  the contract declares no context files — its '## \`project-context/...\`' headings are unparseable"
+    note "  $FORMS holds no blank forms — the context file set is undeclared, and nothing can be instantiated"
   else
+    setfail=0
+    # the two statements of the set verify each other
     for f in $declared; do
-      [ -f "$CTX/$f" ] || note "  the contract declares $f and the context does not have it"
+      grep -qF "## \`project-context/$f\`" "$SCHEMA" \
+        || note "  $f has a blank form and no section in the contract — its keys are undocumented"; setfail=1
+    done
+    for h in $(contract_sections); do
+      printf '%s\n' $declared | grep -qx "$h" \
+        || note "  the contract documents $h and $FORMS has no blank form for it — it cannot be instantiated"; setfail=1
+    done
+    # and the instantiation matches the set
+    for f in $declared; do
+      [ -f "$CTX/$f" ] || note "  the context is missing $f, which has a blank form and a contract section"; setfail=1
     done
     for f in "$CTX"/*.md; do
       [ -f "$f" ] || continue
       printf '%s\n' $declared | grep -qx "$(basename "$f")" \
-        || note "  $f is not declared by the contract — a context file nothing consumes"
+        || note "  $f has no blank form in $FORMS — nothing declares it and nothing can instantiate it"; setfail=1
     done
-    echo "  $(printf '%s\n' $declared | wc -l) declared context files, all present and all declared"
+    [ "$setfail" -eq 0 ] && echo "  $(printf '%s\n' $declared | wc -l) context files: blank forms, contract sections and instantiation agree"
   fi
 fi
 undocumented=0
