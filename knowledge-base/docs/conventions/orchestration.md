@@ -11,5 +11,5 @@ Pointer stub. This convention has its homes in the core and in the context, and 
 - **Membership** — who exists, the tier order, each member's mandate: `framework/roster.md`.
 - **Harness spellings** — dispatch primitives, model map, effort map, capability gaps:
   `framework/hosts/`.
-- **Project values** — per-member ownership: `project-context/roster.md`; gate serialization:
+- **Project values** — per-member ownership: `project-context/ownership.md`; gate serialization:
   `project-context/ci.md`; verification commands: `project-context/commands.md`.

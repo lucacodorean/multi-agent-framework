@@ -87,7 +87,7 @@ The standing roster — who exists, the tier order, each member's mandate — is
 `knowledge-base/framework/roster.md`. Seven members: `contract-owner`, `domain-engineer`,
 `data-engineer`, `platform-engineer`, `engine-engineer`, `code-reviewer`, `docs-agent`. Their
 bindings live at `.claude/agents/` and `.opencode/agents/`, thin by construction; what each owns
-*here* comes from `knowledge-base/project-context/roster.md`. A new member is added by an
+*here* comes from `knowledge-base/project-context/ownership.md`. A new member is added by an
 extension, never by editing the roster (FI-26).
 
 Every need travels through one of seven channels — requirement, constraint, doc impact, review,
@@ -118,7 +118,7 @@ agents and skills only at the repository root, so the unit cannot own those moun
 - Add a rule in exactly one file and point at it from everywhere it binds (FI-01).
 - A new placeholder is added to the contract in the same change that first consumes it.
 - A role charter gains a duty only if that duty holds for every project. Otherwise it belongs
-  in a member record — `knowledge-base/framework/templates/project-context/roster.md`.
+  in a member record — `knowledge-base/framework/templates/project-context/ownership.md`.
 - A harness name appears only under `knowledge-base/framework/hosts/`.
 - Run `knowledge-base/framework/bin/validate-context.sh` before reporting done. Validate an
   example only by naming its context directory.

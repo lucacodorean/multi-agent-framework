@@ -2,7 +2,7 @@
 
 The team every project starts from. Membership, role and tier position are framework facts — the
 same shape holds whatever the project builds. What each member *owns* is not: paths, stack,
-duties and proof commands come from `project-context/roster.md`, keyed by the names below.
+duties and proof commands come from `project-context/ownership.md`, keyed by the names below.
 
 Additional members are added by an extension, never by editing this file (FI-26). An extension
 adding a member supplies its charter, its row, and where it sits in the tier order.
@@ -39,7 +39,7 @@ project needing two of one tier adds the second by extension.
 
 ## What the project supplies
 
-Per member, in `project-context/roster.md`: `owns`, `carve_outs`, `stack`, `verify`,
+Per member, in `project-context/ownership.md`: `owns`, `carve_outs`, `stack`, `verify`,
 `conventions`, `destructive`, and numbered `duties` beyond the charter. Every path in the
 repository maps to exactly one member (FI-05), and ownership follows what code does, not where
 it lives.

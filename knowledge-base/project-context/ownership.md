@@ -1,4 +1,4 @@
-# Roster — per-member ownership
+# Ownership — what each roster member owns here
 
 Who exists, each member's charter and the tier order are framework facts:
 `framework/roster.md`. This file supplies only what those members own **here**.

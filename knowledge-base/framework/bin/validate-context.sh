@@ -154,7 +154,7 @@ if [ -z "$bindings" ]; then
 else
   for b in $bindings; do
     grep -q 'framework/roles/' "$b" || note "  $b names no charter"
-    grep -q 'project-context/roster.md' "$b" || note "  $b names no member record"
+    grep -q 'project-context/ownership.md' "$b" || note "  $b names no member record"
     grep -q '_standing-orders.md' "$b" || note "  $b names no standing orders"
     grep -qE '^model:|^effort' "$b" && note "  $b pins model or effort (FI-09)"
     lines=$(wc -l < "$b")
@@ -171,8 +171,8 @@ else
   # A member this project does not need has no binding by design: framework/roster.md permits it,
   # and the context says so by marking its ownership row "not dispatched".
   undispatched=""
-  if [ -n "$CTX" ] && [ -f "$CTX/roster.md" ]; then
-    undispatched=$(grep -oE '^\| `[a-z][a-z0-9-]*` \| *— *not dispatched' "$CTX/roster.md" \
+  if [ -n "$CTX" ] && [ -f "$CTX/ownership.md" ]; then
+    undispatched=$(grep -oE '^\| `[a-z][a-z0-9-]*` \| *— *not dispatched' "$CTX/ownership.md" \
                    | grep -oE '`[a-z][a-z0-9-]*`' | tr -d '`')
   fi
   for dir in $(printf '%s\n' $bindings | xargs -r -n1 dirname | sort -u); do
@@ -187,9 +187,9 @@ else
     bm=$(basename "$b" .md)
     printf '%s\n' $members | grep -qx "$bm" || note "  $b binds '$bm', which is not a member of the standing roster"
   done
-  if [ -n "$CTX" ] && [ -f "$CTX/roster.md" ]; then
+  if [ -n "$CTX" ] && [ -f "$CTX/ownership.md" ]; then
     for m in $members; do
-      grep -qF "\`$m\`" "$CTX/roster.md" || note "  the context does not mention roster member '$m' — its ownership is undeclared, not empty"
+      grep -qF "\`$m\`" "$CTX/ownership.md" || note "  the context does not mention roster member '$m' — its ownership is undeclared, not empty"
     done
   fi
   echo "  $(printf '%s\n' $members | wc -l) roster members accounted for"

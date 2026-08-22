@@ -8,7 +8,7 @@ A binding MUST:
 - carry the host's required frontmatter (`framework/hosts/<host>.md` § Binding frontmatter),
   with a `description` sufficient for the harness to route work to it;
 - name exactly one charter from `framework/roles/`;
-- name exactly one member record in `project-context/roster.md`;
+- name exactly one member record in `project-context/ownership.md`;
 - name `framework/roles/_standing-orders.md`;
 - pin no model and no effort — both are assigned at dispatch
   (`framework/rules/orchestration.md` § Model and effort).

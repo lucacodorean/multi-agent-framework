@@ -26,17 +26,17 @@ Two rules an agent can only learn here, because this is the file every agent loa
 
 ## 1. Repository layout
 
-Canonical: {{project.architecture_doc}}. Ownership: `project-context/roster.md`.
+Canonical: {{project.architecture_doc}}. Ownership: `project-context/ownership.md`.
 
 | path | contents | owner |
 |---|---|---|
 | `framework/` | framework core — roles, rules, contracts, templates, host adapters | framework maintainers |
-| `project-context/` | every value the core consumes | per `project-context/roster.md` |
+| `project-context/` | every value the core consumes | per `project-context/ownership.md` |
 | ... | | |
 
 ## 2. Roster
 
-Canonical: `project-context/roster.md`. Tier order and side contexts are stated there and
+Canonical: `project-context/ownership.md`. Tier order and side contexts are stated there and
 nowhere else (FI-05, FI-06).
 
 ## 3. Rules of engagement

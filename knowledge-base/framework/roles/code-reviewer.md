@@ -34,7 +34,7 @@ path. If it names none, review the uncommitted working-tree diff plus the commit
 current branch absent from `{{project.repo.default_branch}}`.
 
 Read enough surrounding code to judge the change in context — a diff read in isolation produces
-confident nonsense. Attribute every finding to the owning member per `project-context/roster.md`
+confident nonsense. Attribute every finding to the owning member per `project-context/ownership.md`
 so the lead can route it.
 
 ## Lens 1 — software engineering

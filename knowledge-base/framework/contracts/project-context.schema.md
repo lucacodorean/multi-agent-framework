@@ -21,7 +21,7 @@ Notation: `{{a.b}}` scalar · `{{a.b[]}}` list · `{{a.b[].c}}` field of each li
 | `{{project.repo.default_branch}}` | branch a review diffs against | `code-reviewer` role |
 | `{{kb.root}}` | where this knowledge base sits in the host repository, written repository-root-relative as `./<dir>/` — the anchor every file outside the unit cites (FI-27). Stated here once, and restated in the host's instruction file so an agent can resolve it without opening the context | the host's mounted skills, the repository index |
 
-## `project-context/roster.md` — per-member ownership
+## `project-context/ownership.md` — per-member ownership
 
 Membership, charters and tier order are **framework** facts, stated once in `framework/roster.md`
 and not supplied by the project. What the project supplies is what each of those members owns

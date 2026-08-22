@@ -21,7 +21,7 @@ Never run both modes in one uninterrupted pass. PLAN always ends at an approval 
 The project's own rules are the authority on *how* orchestration works; this skill's defaults apply only where they are silent. Before planning or dispatching, look for and read:
 
 - `{{kb.root}}/framework/rules/orchestration.md` and `{{kb.root}}/framework/rules/invariants.md` — the framework rules
-- `project-context/roster.md`, `project-context/commands.md`, `project-context/ci.md` — who owns what, how work is verified, what serializes
+- `project-context/ownership.md`, `project-context/commands.md`, `project-context/ci.md` — who owns what, how work is verified, what serializes
 - `{{kb.root}}/framework/hosts/<host>.md` — the dispatch primitives, model map and effort map of the host being called
 - the repository's index-and-law file (`CLAUDE.md`, `AGENTS.md`) and any file the user points at as "the orchestration model"
 

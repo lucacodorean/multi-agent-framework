@@ -1,12 +1,12 @@
 # Orchestration
 
-Framework rule. Project values: `project-context/roster.md`, `project-context/ci.md`. Harness
+Framework rule. Project values: `project-context/ownership.md`, `project-context/ci.md`. Harness
 spellings: `framework/hosts/`.
 
 ## Operating model
 
 - The lead session decomposes each request and routes by ownership. The path → owner map is
-  `project-context/roster.md` (FI-05).
+  `project-context/ownership.md` (FI-05).
 - Route build work through the roster. The lead builds directly only for trivial single-file
   edits, reading, reporting and answering questions.
 - One member, discovery-shaped work → a single agent dispatch, `subagent_type` = the member's

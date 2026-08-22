@@ -1,7 +1,7 @@
 # Rules of engagement
 
 Framework rule. The boundary mechanics between members. Project values:
-`project-context/conventions.md`, `project-context/roster.md`.
+`project-context/conventions.md`, `project-context/ownership.md`.
 
 ## The three that bind everything
 

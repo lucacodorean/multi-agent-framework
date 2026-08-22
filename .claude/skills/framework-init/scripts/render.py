@@ -161,8 +161,8 @@ def main():
                 r.get("stack", "—"), r.get("verify", "—"), r.get("destructive", "—")))
             for d in r.get("duties", []):
                 duties.append((m["name"], d))
-        target = ctx / "roster.md"
-        text = target.read_text() if target.is_file() else (forms / "roster.md").read_text()
+        target = ctx / "ownership.md"
+        text = target.read_text() if target.is_file() else (forms / "ownership.md").read_text()
         text = render_table(text, 6, rows, "roster ownership")
         if duties:
             block = ["", "## `member.duties` — beyond the charter", ""]

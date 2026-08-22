@@ -1,6 +1,6 @@
 # Working agreement
 
-Framework rule. Project values: `project-context/commands.md`, `project-context/roster.md`.
+Framework rule. Project values: `project-context/commands.md`, `project-context/ownership.md`.
 
 ## Autonomy
 

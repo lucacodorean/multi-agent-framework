@@ -1,7 +1,7 @@
 # Architecture
 
 The system, independent of where it runs. Every claim cites its source path — never a copy of
-the source (FI-01). Ownership: `project-context/roster.md`. Budget: the entry for this file in
+the source (FI-01). Ownership: `project-context/ownership.md`. Budget: the entry for this file in
 `{{docs.write_paths[]}}`.
 
 ## System

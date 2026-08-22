@@ -30,7 +30,7 @@ HARD CONSTRAINTS:
   exception is APPENDING a three-line entry (AFFECTS / CHANGE / SOURCE) to
   {{docs.worker_channel}}. A summary, notes or handoff file is a task failure even if the code
   works.
-- Stay inside your ownership area (project-context/roster.md).
+- Stay inside your ownership area (project-context/ownership.md).
 - Verification runs where {{project.runbook_doc}} says it runs. Know the machine-wide
   serialization before assuming a slow start is a hang.
 `
