@@ -6,8 +6,9 @@ worked example, and its documentation. It is not a project built with the framew
 ```
 knowledge-base/          the vendorable unit — copy this into a host repository
   framework/             the core: rules, roles, contracts, templates, host adapters  READ-ONLY
-  examples/              worked instantiations, reference only, binding nothing
-  docs/                  documentation about the knowledge base
+  project-context/       the instantiation: nine files resolving every placeholder  STUBS
+  docs/                  the project's knowledge: conventions, decisions, intake, reviews
+  extensions/            additions made without editing the core, and their index
 .claude/skills/          framework-owned skills, mounted where the harness finds them
 prompts/                 the prompts and analyses that produced the current shape
 ```
@@ -45,15 +46,19 @@ knowledge-base/framework/bin/lock-core.sh lock       # always leave it locked
 
 The rest of the knowledge base is writable, and is where the work happens:
 
-- `knowledge-base/docs/` — the project's knowledge: decision records, tracker intake, review
-  reports, stories, business and domain material. Agents read here for information and write
-  here to record it. A file belongs to a declared kind with a declared path and lifecycle
-  (`knowledge-base/framework/rules/doc-artifact-registry.md`); summary, notes and handoff files
-  are not a kind (FI-02).
+- `knowledge-base/docs/` — the project's knowledge: conventions, decision records, tracker
+  intake, review reports, stories, business and domain material. Agents read here for
+  information and write here to record it. The directories are in place and mostly empty; a
+  file belongs to a declared kind with a declared path and lifecycle
+  (`knowledge-base/framework/rules/doc-artifact-registry.md`), and summary, notes and handoff
+  files are not a kind (FI-02).
+  - `docs/conventions/engineering-principles.md` and `architecture-principles.md` are the two
+    slots the framework mandates and never fills. Both are stubs today: filling them is project
+    work, and every role charter points at them meanwhile.
 - `knowledge-base/extensions/` — additions to the framework made without editing it, each
   listed in `knowledge-base/extensions/README.md` (FI-26).
-- `knowledge-base/examples/` — writable, binding nothing, and **read-gated**: open it only when
-  the task prompt carries `EXAMPLE-ACCESS:` naming what is needed from it (FI-24).
+- `knowledge-base/project-context/` — the nine files that resolve the core's placeholders.
+  Stubs today; filling them is the first task of any project using this framework.
 
 This file is one of the enforcement layers, and the only one every agent reads. The others are
 the filesystem lock, the `pre-commit` and `pre-push` hooks, per-host deny rules, and the
@@ -66,18 +71,18 @@ is the violation.
   resolves it. A mounted skill or any other file outside the unit cites
   `{{kb.root}}/framework/…`; a file inside the unit cites `framework/…`, knowledge-base-relative
   (FI-27).
-- **Examples are read-gated and bind nothing (FI-24).** Open `knowledge-base/examples/**` only
-  when the task prompt carries the grant `EXAMPLE-ACCESS:` naming what is needed from it.
-  Without the grant, do not read it — not to check a convention, not to copy a shape, not to
-  settle an ambiguity in a rule. It never becomes precedent, and the validator does not read it
-  unless told to.
+- **Example material is read-gated and binds nothing (FI-24).** There is none in this
+  repository. Should any be added, it is opened only when the task prompt carries the grant
+  `EXAMPLE-ACCESS:` naming what is needed from it — not to check a convention, not to copy a
+  shape, not to settle an ambiguity in a rule. It never becomes precedent, and the validator
+  does not read it unless told to.
 
 ## 2. Layout and ownership
 
 | path | contents | writable by an agent |
 |---|---|---|
 | `knowledge-base/framework/` | the core | **no** (FI-25) |
-| `knowledge-base/examples/` | worked instantiations | yes — but they bind nothing (FI-24) |
+| `knowledge-base/project-context/` | the instantiation the core consumes | yes |
 | `knowledge-base/docs/` | documentation about the knowledge base | yes |
 | `.claude/skills/` | the four generic skills | yes — framework-owned content at a host mount point |
 | `.claude/settings.json`, `.claude/statusline.sh` | operator configuration, not core | yes |

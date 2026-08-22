@@ -33,7 +33,7 @@ fail=0
 note() { printf '%s\n' "$*"; fail=1; }
 
 CTX=${1:-}
-# No implicit fallback to examples/: an example is a demonstration, not a context (FI-24).
+# No implicit fallback to example material: an example is a demonstration, not a context (FI-24).
 [ -z "$CTX" ] && [ -d project-context ] && CTX=project-context
 
 # Core content is the unit plus the framework-owned skills, which are mounted outside the unit
@@ -77,6 +77,8 @@ if [ -n "$CTX" ] && [ -f "$CTX/project.md" ]; then
   NAME=$(grep -oE '^\| `project\.name` \| [^|]+' "$CTX/project.md" | sed 's/.*| //; s/ *$//')
   for pat in "$SLUG" "$NAME"; do
     [ -z "$pat" ] && continue
+    # an unfilled stub value contributes nothing to purity
+    case "$pat" in "<"*) continue;; esac
     hits=$(pure_files | xargs grep -nIF "$pat" 2>/dev/null || true)
     [ -n "$hits" ] && { note "  project identity '$pat' appears in core:"; printf '%s\n' "$hits" | sed 's/^/    /'; purity=1; }
   done

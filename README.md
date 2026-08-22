@@ -13,9 +13,11 @@ codebase. It ships as one vendorable directory.
 - **What varies per project:**
   [`knowledge-base/framework/contracts/project-context.schema.md`](knowledge-base/framework/contracts/project-context.schema.md)
   — every placeholder the core consumes, and who consumes it.
-- **A worked instantiation:**
-  [`knowledge-base/examples/oir-flow/`](knowledge-base/examples/oir-flow/) — reference only; it
-  binds nothing.
+- **The project's knowledge:** [`knowledge-base/docs/`](knowledge-base/docs/) — conventions,
+  decision records, tracker intake, review reports and stories.
+- **The instantiation:** [`knowledge-base/project-context/`](knowledge-base/project-context/) —
+  nine files resolving every placeholder the core consumes. Stubs today: fill them and the
+  framework governs the project.
 
 The core is read-only by design: `knowledge-base/framework/bin/lock-core.sh` installs and
 reports the enforcement. Validate a checkout with

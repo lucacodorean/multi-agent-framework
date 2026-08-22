@@ -52,9 +52,9 @@ dies quietly.
 The rest of the unit is writable, and is where the work happens: `docs/` holds the project's
 knowledge — decision records, tracker intake, review reports, stories, business and domain
 material — read by agents for information and written by them to record it; `extensions/` holds
-additions made without editing the core, each in its index (FI-26); `examples/` may be added to
-or updated, binds nothing, and is **read-gated** — opened only with an `EXAMPLE-ACCESS:` grant
-in the task prompt (FI-24).
+additions made without editing the core, each in its index (FI-26); `project-context/` holds the
+instantiation the core consumes. Example material, if any is ever kept, binds nothing and is
+read-gated (FI-24).
 
 ## Extending without touching the core (FI-26)
 
@@ -89,7 +89,6 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |
 | `docs/` | the project's knowledge, per the artifact registry | **by the project** |
 | `extensions/<name>/` | additions made without editing the core, indexed in `extensions/README.md` | **by the project** |
-| `examples/<project>/` | worked instantiations; read-gated, binding nothing (FI-24) | **by the project** |
 | the host's index-and-law file, its code and its infrastructure | project artifacts outside the unit | **by the project** |
 
 ## Ownership
