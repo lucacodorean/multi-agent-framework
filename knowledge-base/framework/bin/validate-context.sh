@@ -300,6 +300,24 @@ else
     [ -e "$pth" ] || { note "  declared write path '$pth' does not exist — mark it 'not yet created' or create it"; wp_missing=$((wp_missing+1)); }
   done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$POL")
   [ "$wp_missing" -eq 0 ] && echo "  all $wp_total declared write paths exist"
+  # Every lifecycle a project declares must be one the registry defines, or the rule that governs
+  # the artifact does not exist.
+  REG=framework/rules/doc-artifact-registry.md
+  known=$(awk '/^## Lifecycles/{f=1;next} /^## /{f=0} f' "$REG" | grep -oE '^\| `[a-z-]+`' | tr -d '|` ')
+  if [ -z "$known" ]; then
+    note "  the registry defines no lifecycles — its Lifecycles table is unparseable"
+  else
+    lc_bad=0; lc_seen=0
+    while IFS= read -r row; do
+      lc=$(printf '%s' "$row" | awk -F'|' '{print $6}' | tr -d ' `')
+      [ -z "$lc" ] && continue
+      case "$lc" in lifecycle|---*|*'<'*) continue;; esac
+      lc_seen=$((lc_seen+1))
+      printf '%s\n' $known | grep -qx "$lc" \
+        || { note "  an artifact type declares lifecycle '$lc', which the registry does not define"; lc_bad=$((lc_bad+1)); }
+    done < <(awk '/^## Artifact types/{f=1;next} /^## /{f=0} f' "$POL")
+    [ "$lc_bad" -eq 0 ] && echo "  all $lc_seen declared lifecycles are defined by the registry"
+  fi
 fi
 
 echo "== 9. budgets (FI-18)"

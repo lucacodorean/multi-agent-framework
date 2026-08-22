@@ -24,6 +24,9 @@ Contract: `framework/contracts/project-context.schema.md` § docs-policy.md. Rul
 
 `docs.artifact_types`:
 
+Start from `framework/rules/doc-artifact-registry.md` § Standard kinds, then keep, rename or drop
+each one. This table is canonical for the project; the registry only suggests.
+
 | type | path pattern | writer | authorization | lifecycle | budget |
 |---|---|---|---|---|---|
 | <type> | <pattern> | <member> | human-per-file \| standing:<path> \| none | <lifecycle from the registry> | <tokens or none> |

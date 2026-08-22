@@ -37,7 +37,9 @@ says so.
 
 ## Artifact types
 
-`docs.artifact_types`:
+`docs.artifact_types`. Taken from `framework/rules/doc-artifact-registry.md` § Standard kinds,
+minus the kinds this project has no use for — no system description, runbook, topology or CI
+host doc, because it has no system, no runtime and no CI host:
 
 | type | path pattern | writer | authorization | lifecycle | budget |
 |---|---|---|---|---|---|

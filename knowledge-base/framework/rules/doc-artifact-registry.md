@@ -18,6 +18,37 @@ The framework fixes what each lifecycle means.
 | `transit` | data in, orchestrator-ready output out. Keep every file for traceability; never prune. Regeneration follows the input class above. | FI-19 |
 | `append-only` | appended to by many, drained and truncated by the doc writer alone. Never edit or remove an existing entry. | FI-02 |
 
+## Standard kinds
+
+The kinds a project is likely to declare, with a **suggested** path and the lifecycle that fits
+it. A project's `{{docs.artifact_types[]}}` is canonical: take these, rename them, drop the ones
+it has no use for, add its own. Nothing here authorizes anything — a kind is in force when the
+project declares it.
+
+The column exists so a project, or a tool standing one up, has somewhere to start other than
+invention, and so two projects that do not think about it end up alike.
+
+| kind | suggested path | lifecycle | typical authorization | budgeted |
+|---|---|---|---|---|
+| decision record | `docs/adr/NNNN-slug.md` | `immutable` | human-per-file | yes |
+| living story | `docs/stories/<ID>-slug.md` | `living` | standing: a README in that directory | no |
+| tracker intake | `docs/tracker/YYYY-MM-DD-<scope>-intake.md` | `transit` | standing: the intake skill | no |
+| review report | `docs/debt/YYYY-MM-DD-<scope>.md` | `dated-snapshot` | standing: the reviewer charter | no |
+| intake channel | `docs/_intake.md` | `append-only` | standing: the project's policy | no |
+| compaction archive | `docs/archive/**` | `sole-record` | standing: the project's policy | no |
+| convention | `docs/conventions/<name>.md` | `living` | human-per-file | yes |
+| system description | `docs/architecture.md` | `living` | human-per-file | yes |
+| operating commands | `docs/runbook.md` | `living` | human-per-file | yes |
+| runtime topology | `docs/topology/<runtime>.md` | `living` | human-per-file | yes |
+| CI host wiring | `docs/ci/<host>.md` | `living` | human-per-file | yes |
+| supplied material | `docs/reference/<name>` | `sole-record` | none — arrives by human instruction | no |
+
+`budgeted` says whether length is the author's choice (`yes`, so the project sets a number) or
+follows the input (`no`, so a number would be meaningless). It is not a number: the framework
+cannot know one.
+
+Templates for the kinds that have a fixed shape: `framework/templates/artifacts/`.
+
 ## Authorization
 
 Each kind names how a new file in it is authorized (FI-20):
