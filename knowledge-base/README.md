@@ -61,16 +61,20 @@ documentation about the framework goes.
 
 1. Copy this directory to `knowledge-base/` at the host repository root. The path is a
    convention, not a preference: files outside the unit cite it by that name.
-2. Run `knowledge-base/framework/bin/lock-core.sh lock` — a fresh copy starts unlocked, and
+2. **Replace `project-context/` wholesale** from `framework/templates/project-context/`. The
+   copy you took carries a filled context describing the repository you took it from — filled
+   values look authoritative, and inheriting someone else's are worse than starting from stubs.
+   Note the core version you vendored (`framework/VERSION`) while you are here.
+3. Run `knowledge-base/framework/bin/lock-core.sh lock` — a fresh copy starts unlocked, and
    the filesystem lock is not carried by version control.
-3. Instantiate: `framework/README.md` § Initializing a project.
-4. Mount the host's harness directories at the **host repository root**, not inside this unit —
+4. Instantiate: `framework/README.md` § Initializing a project.
+5. Mount the host's harness directories at the **host repository root**, not inside this unit —
    a harness discovers agents and skills only there (`framework/hosts/`). The unit holds the
    canonical skills; the mount is where the harness reads them.
-5. Verify: `knowledge-base/framework/bin/validate-context.sh <context-dir>`.
+6. Verify: `knowledge-base/framework/bin/validate-context.sh <context-dir>`.
 
 ## Updating a vendored copy
 
-Unlock, replace `framework/` wholesale, re-lock. Local divergence in `framework/` is not an
+Unlock, replace `framework/` wholesale, re-lock, and record the new `framework/VERSION`. Local divergence in `framework/` is not an
 update path — it is the thing FI-25 exists to prevent. Anything the host needs that the core
 does not do belongs in an extension beside the core (FI-26).

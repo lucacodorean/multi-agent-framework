@@ -13,6 +13,8 @@ CORE=${FRAMEWORK_CORE_PATH:-$(git config --get core.hooksPath 2>/dev/null | sed 
 
 zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 touched=""
+version_ranges=""
+version_bumped=""
 
 # stdin: <local ref> <local sha> <remote ref> <remote sha>
 while read -r _local_ref local_sha _remote_ref remote_sha; do
@@ -26,14 +28,27 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
   hits=$(git diff --name-only "$range" -- "$CORE" 2>/dev/null || true)
   [ -n "$hits" ] && touched="$touched$hits
 "
+  if [ -n "$hits" ]; then
+    version_ranges="yes"
+    git diff --name-only "$range" -- "$CORE/VERSION" 2>/dev/null | grep -q . && version_bumped="yes"
+  fi
 done
 
 [ -z "$touched" ] && exit 0
 
 if [ "${FRAMEWORK_PUBLISH:-}" = "1" ]; then
+  # A release names itself. If the core changed and its version did not, nobody downstream can
+  # say what they are inheriting.
+  if [ -n "$version_ranges" ] && [ -z "$version_bumped" ]; then
+    printf 'REFUSED: this push changes the core but leaves %s/VERSION untouched.\n\n' "$CORE"
+    printf 'A consumer has nothing else to point at to say which core it vendored. Bump the\n'
+    printf 'version, then publish.\n'
+    exit 1
+  fi
   printf 'FI-25: publishing a core change with FRAMEWORK_PUBLISH=1 —\n'
   printf '%s' "$touched" | sort -u | sed 's/^/  /'
-  printf '\nEveryone consuming this core inherits it. Say so in the release note.\n'
+  printf '\nVersion published: %s\n' "$(git show "HEAD:$CORE/VERSION" 2>/dev/null || echo unknown)"
+  printf 'Everyone consuming this core inherits it. Say so in the release note.\n'
   exit 0
 fi
 

@@ -20,25 +20,13 @@ That is what keeps "creating files as needed" from becoming clutter: a file belo
 declared kind with a declared path and lifecycle, or it needs a human to name it. Summary,
 notes, progress and handoff files are not a kind — they never were, and FI-02 still holds.
 
-## Typical contents
-
-| kind | what it holds |
-|---|---|
-| decision records | one decision per file, immutable once accepted; supersede rather than edit |
-| tracker intake | normalized work items, orchestrator-ready; transit, kept for traceability |
-| review reports | dated snapshots of what a review found; retire a finding in place |
-| stories | current intent, living; acceptance criteria in the input's language |
-| business and domain material | what the work is based on; sole record — write once, supersede, never regenerate over |
-| the intake channel | the append-only file every worker reports doc-impact to |
-
-Documentation *about the framework itself* — how to instantiate it, why a rule is shaped the
-way it is — belongs here too, under the same registry. The framework's own rules do not: they
-are core, and core is read-only (FI-25).
+Documentation *about the framework itself* belongs here too, under the same registry. The
+framework's own rules do not: they are core, and read-only (FI-25).
 
 ## Layout
 
-The directories exist so an agent has somewhere to write without inventing a path. Each is
-empty apart from a `.gitkeep` until the work arrives.
+The directories exist so an agent has somewhere to write without inventing a path. What each
+kind's lifecycle is: `framework/rules/doc-artifact-registry.md`.
 
 | path | holds |
 |---|---|
@@ -51,7 +39,6 @@ empty apart from a `.gitkeep` until the work arrives.
 | `ci/` | the CI host wiring |
 | `archive/` | what compaction removes; nothing is hard-deleted |
 
-Not yet declared: which of these paths a project actually uses, their budgets, and the sole
-writer. That comes from a project context (`docs.write_paths`, `docs.artifact_types`), which
-this repository does not yet have — so treat the table above as the intended shape, not an
-authorized whitelist.
+Which of these paths are authorized, their budgets, and the sole writer come from
+`project-context/docs-policy.md` — not from this table. A path here that the policy does not
+declare is not writable (FI-20).

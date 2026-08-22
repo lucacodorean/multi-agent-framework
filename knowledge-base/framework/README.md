@@ -15,6 +15,16 @@ Paths in this unit are knowledge-base-relative (FI-27): `framework/rules/…`, n
 `knowledge-base/framework/rules/…`. Files outside the unit cite `{{kb.root}}`, the anchor the
 project declares once and the host's instruction file restates.
 
+## The unit has a version
+
+`framework/VERSION` — the version of the core, and the only thing a consumer can point at to say
+which core it vendored. Publishing a core change bumps it; the `pre-push` hook refuses a core
+change whose range leaves it untouched, so a release cannot go out unnamed.
+
+Dated form, `YYYY-MM-DD`, because the release boundary is a publish and not a feature set. A
+project that needs semantics beyond "newer than what I have" replaces the scheme — the mechanism
+does not care what the string is, only that it changed.
+
 ## The core is read-only (FI-25)
 
 No agent edits `framework/**`. A need that does not fit is answered in one of three places,
@@ -97,7 +107,8 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `framework/roles/` | role charters — one per role kind, plus the shared standing orders | by framework maintainers only |
 | `framework/hosts/` | one adapter per agent harness (Claude Code, opencode, Grok) | by framework maintainers only |
 | `framework/templates/` | project-context templates, agent-binding template, `CLAUDE.md` template, workflow-script template | by framework maintainers only |
-| `framework/bin/` | `validate-context.sh` (six checks) and `lock-core.sh` (the read-only layers) | by framework maintainers only |
+| `framework/VERSION` | the core's version — bumped when a core change is published | by framework maintainers only |
+| `framework/bin/` | `validate-context.sh` (nine checks) and `lock-core.sh` (the read-only layers) | by framework maintainers only |
 | the host's mounted skills | generic skills; they live at the **host repository root**, not in this unit, because a harness discovers them only there (`framework/hosts/`) | by framework maintainers only |
 | `project-context/` | every value that changes between projects; created at instantiation — absent in the framework repository itself | **by the project** |
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |

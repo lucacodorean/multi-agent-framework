@@ -14,7 +14,9 @@
 #      silent;
 #   7. anchors — the extension index exists (FI-26) and {{kb.root}} resolves (FI-27);
 #   8. documentation policy wiring — every standing authorization and every declared write path
-#      resolves. No path is known to this script: it checks whatever the context declares.
+#      resolves. No path is known to this script: it checks whatever the context declares;
+#   9. budgets — every declared write path is inside the budget the policy declares for it,
+#      counted by the metric the policy declares (FI-18).
 #
 # Usage: framework/bin/validate-context.sh [context-dir]
 #   With no argument: ./project-context if it exists, else the core is checked alone. An example
@@ -223,6 +225,8 @@ else
   echo "  extension index: none, and no extensions/ directory"
 fi
 # FI-27: the anchor must resolve to this directory, and be findable without opening the context.
+[ -f framework/VERSION ] && echo "  core version: $(cat framework/VERSION)" \
+  || note "  framework/VERSION is absent — a consumer cannot say which core it vendored"
 anchor=$(basename "$KB")
 if [ -n "$CTX" ] && [ -f "$CTX/project.md" ]; then
   declared=$(grep -oE '^\| `kb\.root` \| `[^`]+`' "$CTX/project.md" | grep -oE '`[^`]+`$' | tr -d '`/')
@@ -265,6 +269,30 @@ else
     [ -e "$pth" ] || { note "  declared write path '$pth' does not exist — mark it 'not yet created' or create it"; wp_missing=$((wp_missing+1)); }
   done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$POL")
   [ "$wp_missing" -eq 0 ] && echo "  all $wp_total declared write paths exist"
+fi
+
+echo "== 9. budgets (FI-18)"
+if [ -z "$CTX" ] || [ ! -f "$CTX/docs-policy.md" ]; then
+  echo "  no documentation policy to check"
+else
+  # The metric is the policy's, not this script's: words x 4/3, rounded down. A budget cell that
+  # is not a number ("none", prose) means the length follows the input rather than the author.
+  tokens() { awk '{w+=NF} END{printf "%d", w*4/3}' "$1"; }
+  over=0; checked=0
+  while IFS= read -r row; do
+    pth=$(printf '%s' "$row" | sed -n 's/^| *`\([^`]*\)`.*/\1/p')
+    [ -z "$pth" ] && continue
+    case "$pth" in *'<'*|*'*'*) continue;; esac
+    bud=$(printf '%s' "$row" | awk -F'|' '{print $(NF-1)}' | tr -d ' ,' | grep -oE '^[0-9]+$' || true)
+    [ -z "$bud" ] && continue
+    if [ -d "$pth" ]; then files=$(find "$pth" -type f -name '*.md' 2>/dev/null); else files="$pth"; fi
+    for f in $files; do
+      [ -f "$f" ] || continue
+      t=$(tokens "$f"); checked=$((checked+1))
+      [ "$t" -gt "$bud" ] && { note "  $f is $t tokens, over its $bud budget — compress, or report the overrun (FI-18)"; over=$((over+1)); }
+    done
+  done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$CTX/docs-policy.md")
+  [ "$over" -eq 0 ] && echo "  all $checked budgeted files are within budget"
 fi
 
 echo
