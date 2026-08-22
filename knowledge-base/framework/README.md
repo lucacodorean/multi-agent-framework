@@ -68,6 +68,19 @@ No extension mechanism is built yet, and none should be until a second real case
 speculative machinery is exactly what the discipline in this framework rejects. The constraint
 above is fixed now so the shape is not decided under pressure later.
 
+## What a derived project changes
+
+This unit is the starting point, and it is adapted from outside itself — never by editing it:
+
+| surface | holds |
+|---|---|
+| `project-context/` | the values the core consumes: ownership, stack, commands, runtimes, gates, doc policy, conventions, glossary |
+| `extensions/` | anything the core does not do — added rules, roles, adapters, artifact kinds, members (FI-26) |
+| `docs/` | the project's own knowledge, written and read as the work proceeds |
+
+Nothing else needs to change to stand a new project up, and nothing under `framework/` may
+change to stand one up.
+
 ## The rule that makes this work
 
 Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one entry in
@@ -79,7 +92,8 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | path | holds | edited |
 |---|---|---|
 | `framework/contracts/` | the placeholder contract, the host-adapter contract, the agent-binding contract | by framework maintainers only |
-| `framework/rules/` | framework rules: invariants, orchestration, engagement, working agreement, doc governance, artifact registry, CI gates, runtime topology | by framework maintainers only |
+| `framework/roster.md` | the standing roster: who exists, the tier order, each member's mandate | by framework maintainers only |
+| `framework/rules/` | framework rules: invariants, orchestration, agent communication, engagement, working agreement, doc governance, artifact registry, CI gates, runtime topology | by framework maintainers only |
 | `framework/roles/` | role charters — one per role kind, plus the shared standing orders | by framework maintainers only |
 | `framework/hosts/` | one adapter per agent harness (Claude Code, opencode, Grok) | by framework maintainers only |
 | `framework/templates/` | project-context templates, agent-binding template, `CLAUDE.md` template, workflow-script template | by framework maintainers only |

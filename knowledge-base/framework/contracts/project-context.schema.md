@@ -21,16 +21,20 @@ Notation: `{{a.b}}` scalar · `{{a.b[]}}` list · `{{a.b[].c}}` field of each li
 | `{{project.repo.default_branch}}` | branch a review diffs against | `code-reviewer` role |
 | `{{kb.root}}` | where this knowledge base sits in the host repository — the anchor every file outside the unit cites (FI-27). Stated here once, and restated in the host's instruction file so an agent can resolve it without opening the context | the host's mounted skills, the repository index |
 
-## `project-context/roster.md` — members and topology
+## `project-context/roster.md` — per-member ownership
+
+Membership, charters and tier order are **framework** facts, stated once in `framework/roster.md`
+and not supplied by the project. What the project supplies is what each of those members owns
+here. A project adding a member does it by extension (FI-26), which also supplies its row.
 
 | placeholder | shape | consumed by |
 |---|---|---|
-| `{{roster.tiers[]}}` | ordered member names, highest tier first | `orchestration`, all roles |
-| `{{roster.side_contexts[]}}` | `{member, reached_through}` — provider contexts beside the tiers | `orchestration`, `provider-context` role |
-| `{{roster.outside_order[]}}` | members standing outside the tier order | `orchestration` |
-| `{{member.name}}` | roster name; also the binding filename and `subagent_type` | `agent-binding.md.template` |
-| `{{member.role}}` | id of a `framework/roles/*.md` charter | `agent-binding.md.template` |
-| `{{member.tier}}` | position in `roster.tiers[]`, or `side` / `outside` | `tier-member` role |
+| `{{roster.tiers[]}}` | ordered member names — read from `framework/roster.md` | `orchestration`, all roles |
+| `{{roster.side_contexts[]}}` | `{member, reached_through}` — membership from `framework/roster.md`, the interface path from this file | `orchestration`, `provider-context` role |
+| `{{roster.outside_order[]}}` | members outside the tier order — read from `framework/roster.md` | `orchestration` |
+| `{{member.name}}` | roster name; also the binding filename and dispatch identifier | `agent-binding.md.template` |
+| `{{member.role}}` | charter id — read from `framework/roster.md` | `agent-binding.md.template` |
+| `{{member.tier}}` | position, or `side` / `outside` — read from `framework/roster.md` | `tier-member` role |
 | `{{member.owns[]}}` | writable path globs | all roles, `rules-of-engagement` |
 | `{{member.carve_outs[]}}` | `{path, owner}` — paths inside `owns[]` belonging to another member | `rules-of-engagement` |
 | `{{member.stack[]}}` | technologies this member works in | `tier-member`, `provider-context` roles |

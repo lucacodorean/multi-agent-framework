@@ -10,6 +10,21 @@ its own documentation. Copy this directory into a host repository, keep it at
 | `docs/` | the project's knowledge: decision records, tracker intake, review reports, stories, business and domain material | yes — this is where agents read and record |
 | `extensions/` | additions to the framework made without editing it, and their index | yes (FI-26) |
 | `project-context/` | the instantiation: every value the core consumes | yes — stubs until filled |
+| `docs/_intake.md` | the doc-impact channel every agent but the doc writer reports through | append only |
+
+## Standing up a derived project
+
+This unit is the starting point for any project. It is adapted from outside itself, never by
+editing it:
+
+| surface | what it decides |
+|---|---|
+| `project-context/` | ownership, stack, commands, runtimes, gates, doc policy, conventions, glossary |
+| `extensions/` | anything the core does not do — added rules, roles, adapters, artifact kinds, members (FI-26) |
+| `docs/` | the project's own knowledge, read and written as work proceeds |
+
+The team itself is not per-project: `framework/roster.md` holds the standing roster, and the
+bindings that make its members dispatchable are rendered per host at the repository root.
 
 ## Where the anchor points
 

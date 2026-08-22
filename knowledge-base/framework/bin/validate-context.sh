@@ -91,10 +91,11 @@ hits=$(pure_files | xargs grep -niE "$STACK_TERMS" 2>/dev/null || true)
 [ "$purity" -eq 0 ] && echo "  no project identity or stack term in core"
 
 echo "== 3. binding thinness"
-# Bindings are checked beside the resolved context only. With no context, the root harness
-# directories; with a named context, that context's siblings. An example's bindings are checked
-# when, and only when, its context was named (FI-24).
-BINDING_BASE=$([ -n "$CTX" ] && dirname "$CTX" || echo ..)
+# Bindings live at the host mount points, which are outside this unit — a harness discovers
+# agents only at the repository root (hosts/). Search there and beside the resolved context;
+# an example's bindings are checked when, and only when, its context was named (FI-24).
+BINDING_BASE=".."
+[ -n "$CTX" ] && [ "$(dirname "$CTX")" != "." ] && BINDING_BASE="$(dirname "$CTX")"
 bindings=$(find "$BINDING_BASE" -maxdepth 3 -path '*/node_modules' -prune -o -path '*/agents/*.md' -print 2>/dev/null | sort)
 if [ -z "$bindings" ]; then
   echo "  no bindings present — render them from framework/templates/agent-binding.md.template"

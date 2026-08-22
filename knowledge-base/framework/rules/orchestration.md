@@ -16,6 +16,8 @@ spellings: `framework/hosts/`.
 - The lead integrates, verifies against the published interface version, and reports. A
   member's report is input to verification, never a substitute for it.
 - Every run ends with a doc checkpoint dispatched to `{{docs.sole_writer}}` (FI-02).
+- Which channel any need travels through — requirement, constraint, doc impact, review, report,
+  checkpoint, escalation — is `rules/agent-communication.md`. There are no others.
 
 ## Tiers and direction
 

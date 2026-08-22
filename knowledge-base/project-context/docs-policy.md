@@ -11,7 +11,7 @@ Rules: `framework/rules/documentation-governance.md`; lifecycles:
 |---|---|
 | `docs.sole_writer` | <member name> |
 | `docs.role_gate_line` | <exact line granting the role> |
-| `docs.worker_channel` | <append-only intake file> |
+| `docs.worker_channel` | `docs/_intake.md` |
 | `docs.metric` | <token metric and how it is counted> |
 | `docs.archive_dir` | <where compaction moves removed content> |
 
@@ -21,6 +21,8 @@ Rules: `framework/rules/documentation-governance.md`; lifecycles:
 
 | path | budget |
 |---|---|
+| `docs/_intake.md` | none — drain and truncate only |
+| `docs/conventions/` (each file) | <tokens> |
 | <path> | <tokens, or none> |
 
 Until this table is filled, the directories under `docs/` are an intended shape and not an

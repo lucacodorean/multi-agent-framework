@@ -5,12 +5,16 @@ worked example, and its documentation. It is not a project built with the framew
 
 ```
 knowledge-base/          the vendorable unit — copy this into a host repository
-  framework/             the core: rules, roles, contracts, templates, host adapters  READ-ONLY
+  framework/             the core: roster, rules, roles, contracts, templates, hosts  READ-ONLY
   project-context/       the instantiation: nine files resolving every placeholder  STUBS
-  docs/                  the project's knowledge: conventions, decisions, intake, reviews
+  docs/                  the project's knowledge, and docs/_intake.md, the doc channel
   extensions/            additions made without editing the core, and their index
+.claude/agents/          the roster's bindings, one per member, per host
 .claude/skills/          framework-owned skills, mounted where the harness finds them
 prompts/                 the prompts and analyses that produced the current shape
+
+This repository is the starting point for any further project. A derived project changes
+`project-context/`, `extensions/` and `docs/` — and nothing else.
 ```
 
 Read `knowledge-base/README.md` first, then
@@ -77,6 +81,22 @@ is the violation.
   shape, not to settle an ambiguity in a rule. It never becomes precedent, and the validator
   does not read it unless told to.
 
+## 1b. The roster and how members talk
+
+The standing roster — who exists, the tier order, each member's mandate — is a framework fact:
+`knowledge-base/framework/roster.md`. Seven members: `contract-owner`, `domain-engineer`,
+`data-engineer`, `platform-engineer`, `engine-engineer`, `code-reviewer`, `docs-agent`. Their
+bindings live at `.claude/agents/` and `.opencode/agents/`, thin by construction; what each owns
+*here* comes from `knowledge-base/project-context/roster.md`. A new member is added by an
+extension, never by editing the roster (FI-26).
+
+Every need travels through one of seven channels — requirement, constraint, doc impact, review,
+report, checkpoint, escalation — defined once in
+`knowledge-base/framework/rules/agent-communication.md`. There are no others: editing another
+member's files or leaving a note in code is a boundary violation, not communication. The
+doc-impact channel is `knowledge-base/docs/_intake.md`, append-only, drained by the doc writer
+alone.
+
 ## 2. Layout and ownership
 
 | path | contents | writable by an agent |
@@ -84,6 +104,7 @@ is the violation.
 | `knowledge-base/framework/` | the core | **no** (FI-25) |
 | `knowledge-base/project-context/` | the instantiation the core consumes | yes |
 | `knowledge-base/docs/` | documentation about the knowledge base | yes |
+| `.claude/agents/`, `.opencode/agents/` | the roster's bindings, rendered from one template | yes — regenerate, never hand-edit one copy |
 | `.claude/skills/` | the four generic skills | yes — framework-owned content at a host mount point |
 | `.claude/settings.json`, `.claude/statusline.sh` | operator configuration, not core | yes |
 | `prompts/` | working material | yes |
