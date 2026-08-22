@@ -32,7 +32,12 @@ readonly KB
 cd "$KB" || exit 2
 
 SCHEMA=framework/contracts/project-context.schema.md
-CONTEXT_FILES=(project roster stack commands runtimes ci docs-policy conventions glossary)
+# The set of context files is declared once, by the contract's own section headings. Deriving it
+# here instead of repeating it means a context file added, renamed or dropped lands in one place
+# (FI-01).
+context_files() {
+  grep -oE '^## `project-context/[a-z-]+\.md`' "$SCHEMA" | grep -oE '[a-z-]+\.md'
+}
 fail=0
 note() { printf '%s\n' "$*"; fail=1; }
 
@@ -69,9 +74,20 @@ if [ -z "$CTX" ]; then
   [ -n "$ex" ] && echo "  an example exists at $ex and was NOT read (FI-24) — name it to validate it"
 else
   echo "  context: $CTX"
-  for f in "${CONTEXT_FILES[@]}"; do
-    [ -f "$CTX/$f.md" ] || note "  MISSING $CTX/$f.md"
-  done
+  declared=$(context_files)
+  if [ -z "$declared" ]; then
+    note "  the contract declares no context files — its '## \`project-context/...\`' headings are unparseable"
+  else
+    for f in $declared; do
+      [ -f "$CTX/$f" ] || note "  the contract declares $f and the context does not have it"
+    done
+    for f in "$CTX"/*.md; do
+      [ -f "$f" ] || continue
+      printf '%s\n' $declared | grep -qx "$(basename "$f")" \
+        || note "  $f is not declared by the contract — a context file nothing consumes"
+    done
+    echo "  $(printf '%s\n' $declared | wc -l) declared context files, all present and all declared"
+  fi
 fi
 undocumented=0
 while read -r ph; do
