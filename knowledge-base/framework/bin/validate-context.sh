@@ -106,7 +106,7 @@ undocumented=0
 while read -r ph; do
   [ -z "$ph" ] && continue
   grep -qF "$ph" "$SCHEMA" || { note "  placeholder not in the contract: $ph"; undocumented=$((undocumented+1)); }
-done < <(core_files | xargs grep -ho '{{[a-z_]*\.[A-Za-z0-9_.\[\]]*}}' 2>/dev/null | sort -u)
+done < <(core_files | xargs grep -ho '{{[a-z_][A-Za-z0-9_.\[\]]*}}' 2>/dev/null | sort -u)
 [ "$undocumented" -eq 0 ] && echo "  every placeholder used by a core file is documented"
 # The other direction: a key the contract documents and no context file supplies is invisible
 # today. Rows the contract itself marks as sourced from the core roster are not the project's to
@@ -168,9 +168,19 @@ members=$(roster_members)
 if [ -z "$members" ]; then
   note "  the standing roster lists no members — framework/roster.md § Members is unparseable"
 else
+  # A member this project does not need has no binding by design: framework/roster.md permits it,
+  # and the context says so by marking its ownership row "not dispatched".
+  undispatched=""
+  if [ -n "$CTX" ] && [ -f "$CTX/roster.md" ]; then
+    undispatched=$(grep -oE '^\| `[a-z][a-z0-9-]*` \| *— *not dispatched' "$CTX/roster.md" \
+                   | grep -oE '`[a-z][a-z0-9-]*`' | tr -d '`')
+  fi
   for dir in $(printf '%s\n' $bindings | xargs -r -n1 dirname | sort -u); do
     for m in $members; do
-      [ -f "$dir/$m.md" ] || note "  $dir has no binding for roster member '$m' — it cannot be dispatched there"
+      [ -f "$dir/$m.md" ] && continue
+      printf '%s\n' $undispatched | grep -qx "$m" \
+        && echo "  $dir has no binding for '$m' — the context marks it not dispatched" \
+        || note "  $dir has no binding for roster member '$m' — it cannot be dispatched there"
     done
   done
   for b in $bindings; do
@@ -259,8 +269,8 @@ fi
 anchor=$(basename "$KB")
 if [ -n "$CTX" ] && [ -f "$CTX/project.md" ]; then
   # accept ./dir/, dir/, ./dir or dir — the anchor is a location, not a spelling
-  declared=$(grep -oE '^\| `kb\.root` \| `[^`]+`' "$CTX/project.md" | grep -oE '`[^`]+`$' \
-             | tr -d '`' | sed 's|^\./||; s|/*$||')
+  declared=$(grep -E '^\| `kb\.root` \|' "$CTX/project.md" | head -1 \
+             | awk -F'|' '{print $3}' | tr -d '` ' | sed 's|^\./||; s|/*$||')
   if [ -z "$declared" ]; then
     note "  the context declares no kb.root — files outside the unit have no anchor to cite (FI-27)"
   elif [ "$declared" != "$anchor" ]; then

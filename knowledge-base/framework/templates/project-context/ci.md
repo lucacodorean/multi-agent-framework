@@ -12,6 +12,8 @@ Contract: `framework/contracts/project-context.schema.md` § ci.md. Rules:
 
 ## Gates
 
+`ci.gates`:
+
 | name | proves | command | serialized |
 |---|---|---|---|
 | <name> | <what it proves> | <command> | yes/no |
