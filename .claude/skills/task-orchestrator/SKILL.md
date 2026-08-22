@@ -20,9 +20,9 @@ Never run both modes in one uninterrupted pass. PLAN always ends at an approval 
 
 The project's own rules are the authority on *how* orchestration works; this skill's defaults apply only where they are silent. Before planning or dispatching, look for and read:
 
-- `framework/rules/orchestration.md` and `framework/rules/invariants.md` — the framework rules
+- `knowledge-base/framework/rules/orchestration.md` and `knowledge-base/framework/rules/invariants.md` — the framework rules
 - `project-context/roster.md`, `project-context/commands.md`, `project-context/ci.md` — who owns what, how work is verified, what serializes
-- `framework/hosts/<host>.md` — the dispatch primitives, model map and effort map of the host being called
+- `knowledge-base/framework/hosts/<host>.md` — the dispatch primitives, model map and effort map of the host being called
 - the repository's index-and-law file (`CLAUDE.md`, `AGENTS.md`) and any file the user points at as "the orchestration model"
 
 Those rules may override any default in this skill: model routing, effort taxonomy, parallelism limits, wave protocol, agent roles, handoff and report formats, branch or working-copy conventions, and whether waves auto-continue or gate on the user. When a project rule and a skill default conflict, the project rule wins — note the override in the plan so the user can see it was honored.

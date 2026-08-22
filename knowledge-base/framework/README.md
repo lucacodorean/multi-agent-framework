@@ -4,12 +4,15 @@ A project-agnostic multi-agent operating system. Nothing here names a project, a
 framework, a service or a command.
 
 ```
-Framework Core   (framework/**, .claude/skills/**)
+Framework Core   framework/**  +  the host's mounted skills
       ↓ consumes
-Project Context  (project-context/**)
+Project Context  project-context/**
       ↓ describes
-Project Artifacts (CLAUDE.md, docs/**, infra/**, the codebase)
+Project Artifacts  the host repository's index, docs and code
 ```
+
+Paths in this unit are knowledge-base-relative (FI-27): `framework/rules/…`, never
+`knowledge-base/framework/rules/…`. Files outside the unit reach in by the vendor path.
 
 ## The core is read-only (FI-25)
 
@@ -54,7 +57,7 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `framework/hosts/` | one adapter per agent harness (Claude Code, opencode, Grok) | by framework maintainers only |
 | `framework/templates/` | project-context templates, agent-binding template, `CLAUDE.md` template, workflow-script template | by framework maintainers only |
 | `framework/bin/` | `validate-context.sh` — contract completeness + core purity | by framework maintainers only |
-| `.claude/skills/` | generic skills; host-mounted because the harness discovers them there | by framework maintainers only |
+| the host's mounted skills | generic skills; they live at the **host repository root**, not in this unit, because a harness discovers them only there (`framework/hosts/`) | by framework maintainers only |
 | `project-context/` | every value that changes between projects; created at instantiation — absent in the framework repository itself | **by the project** |
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |
 | `examples/<project>/` | one worked instantiation, read-only reference | nobody — it binds nothing (FI-24) |

@@ -26,7 +26,7 @@ Consequences, all non-negotiable:
 
 ## Step 0 — read project conventions
 
-Project rules override skill defaults. Read `framework/rules/documentation-governance.md`, `framework/rules/doc-artifact-registry.md` and `project-context/docs-policy.md`, then check:
+Project rules override skill defaults. Read `knowledge-base/framework/rules/documentation-governance.md`, `knowledge-base/framework/rules/doc-artifact-registry.md` and `project-context/docs-policy.md`, then check:
 
 - **Path** — the intake entry in `{{docs.artifact_types[]}}`. The user may name another path, or none (emit inline only).
 - **Who writes** — the `writer` on that entry. If it is not this session, do not write: emit the document in the reply and name the authorized writer.

@@ -20,11 +20,14 @@
 # core deliberate and visible instead of accidental, which is the achievable goal (FI-22).
 set -uo pipefail
 
-ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-readonly ROOT
-cd "$ROOT" || exit 2
+# The unit locates itself (FI-27): CORE is knowledge-base-relative, HOOKS is repository-relative
+# because git wants core.hooksPath that way.
+KB=$(cd "$(dirname "$0")/../.." && pwd)
+REPO=$(git rev-parse --show-toplevel 2>/dev/null || echo "$KB")
+readonly KB REPO
+cd "$KB" || exit 2
 CORE=${FRAMEWORK_CORE_PATH:-framework}
-HOOKS="$CORE/bin/githooks"
+HOOKS="${KB#"$REPO"/}/$CORE/bin/githooks"
 
 writable() { [ -w "$CORE/rules/invariants.md" ] && echo yes || echo no; }
 hooked()   { [ "$(git config --get core.hooksPath || true)" = "$HOOKS" ] && echo yes || echo no; }

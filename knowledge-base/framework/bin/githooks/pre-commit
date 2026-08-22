@@ -9,7 +9,9 @@
 # under a workspace directory.
 set -e
 
-CORE=${FRAMEWORK_CORE_PATH:-framework}
+# Self-locating: core.hooksPath is <core>/bin/githooks, repository-relative.
+CORE=${FRAMEWORK_CORE_PATH:-$(git config --get core.hooksPath 2>/dev/null | sed 's|/bin/githooks/*$||')}
+[ -z "$CORE" ] && CORE=knowledge-base/framework
 changed=$(git diff --cached --name-only --diff-filter=ACMRDT -- "$CORE" 2>/dev/null || true)
 
 [ -z "$changed" ] && exit 0

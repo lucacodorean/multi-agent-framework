@@ -18,9 +18,11 @@
 # Read-only. Exit 0 clean, 1 with findings.
 set -uo pipefail
 
-ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-readonly ROOT
-cd "$ROOT" || exit 2
+# The unit locates itself: every path below is relative to the knowledge-base root (FI-27),
+# so the unit can be vendored anywhere without editing a citation.
+KB=$(cd "$(dirname "$0")/../.." && pwd)
+readonly KB
+cd "$KB" || exit 2
 
 SCHEMA=framework/contracts/project-context.schema.md
 CONTEXT_FILES=(project roster stack commands runtimes ci docs-policy conventions glossary)
@@ -31,8 +33,15 @@ CTX=${1:-}
 # No implicit fallback to examples/: an example is a demonstration, not a context (FI-24).
 [ -z "$CTX" ] && [ -d project-context ] && CTX=project-context
 
+# Core content is the unit plus the framework-owned skills, which are mounted outside the unit
+# because a harness discovers them only at the repository root (framework/hosts/).
+MOUNTS=""
+for d in ../.claude/skills ../.opencode/skills ../.grok/skills; do
+  [ -d "$d" ] && MOUNTS="$MOUNTS $d"
+done
 core_files() {
-  find framework .claude/skills -type f \( -name '*.md' -o -name '*.template' \) 2>/dev/null \
+  # shellcheck disable=SC2086
+  find framework $MOUNTS -type f \( -name '*.md' -o -name '*.template' \) 2>/dev/null \
     | grep -v '^framework/templates/' | sort
   find framework/templates -type f 2>/dev/null | sort
 }
@@ -80,7 +89,7 @@ echo "== 3. binding thinness"
 # Bindings are checked beside the resolved context only. With no context, the root harness
 # directories; with a named context, that context's siblings. An example's bindings are checked
 # when, and only when, its context was named (FI-24).
-BINDING_BASE=$([ -n "$CTX" ] && dirname "$CTX" || echo .)
+BINDING_BASE=$([ -n "$CTX" ] && dirname "$CTX" || echo ..)
 bindings=$(find "$BINDING_BASE" -maxdepth 3 -path '*/node_modules' -prune -o -path '*/agents/*.md' -print 2>/dev/null | sort)
 if [ -z "$bindings" ]; then
   echo "  no bindings present — render them from framework/templates/agent-binding.md.template"
@@ -121,9 +130,11 @@ fi
 
 echo "== 6. core protection (FI-25)"
 CORE=${FRAMEWORK_CORE_PATH:-framework}
-HOOKS="$CORE/bin/githooks"
+HOOKS=$(git config --get core.hooksPath 2>/dev/null || true)
+REPO=$(git rev-parse --show-toplevel 2>/dev/null || echo "$KB")
+WANT_HOOKS="${KB#"$REPO"/}/$CORE/bin/githooks"
 fs_locked=no; [ -w "$CORE/rules/invariants.md" ] || fs_locked=yes
-hook_on=no;   [ "$(git config --get core.hooksPath 2>/dev/null || true)" = "$HOOKS" ] && hook_on=yes
+hook_on=no;   [ -n "$HOOKS" ] && [ "${HOOKS%/}" = "$WANT_HOOKS" ] && hook_on=yes
 echo "  filesystem lock: $fs_locked · commit hook: $hook_on"
 if [ "$fs_locked" = no ] && [ "$hook_on" = no ]; then
   note "  nothing is protecting the core — run $CORE/bin/lock-core.sh lock"

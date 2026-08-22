@@ -9,7 +9,7 @@ Assign the **cheapest tier that can meet the task's acceptance criteria on the f
 ## Model tiers
 
 Use framework tier names (`cheap` / `standard` / `top`) in plans, never host model identifiers.
-The host adapter maps them at DISPATCH (`framework/hosts/<host>.md` § Model map). Project rules
+The host adapter maps them at DISPATCH (`knowledge-base/framework/hosts/<host>.md` § Model map). Project rules
 override the table.
 
 | Tier | Route to it when the task is... | Typical examples |
@@ -32,7 +32,7 @@ Effort is the task's thinking/verification budget, orthogonal to tier (a `cheap`
 | **low** | Single pass, no exploration. Do the thing, check the obvious. |
 | **medium** | Some exploration of alternatives, self-review of the output against the acceptance criteria before reporting done. |
 | **high** | Extended reasoning: consider multiple approaches, adversarially self-review (what would make this wrong?), verify against every acceptance criterion explicitly. |
-| **xhigh** | Same job as high, more reasoning budget, on hosts that expose it (`framework/hosts/<host>.md` § Effort map). Not a default. Needs a one-line rationale. |
+| **xhigh** | Same job as high, more reasoning budget, on hosts that expose it (`knowledge-base/framework/hosts/<host>.md` § Effort map). Not a default. Needs a one-line rationale. |
 
 Defaults: `cheap`→low, `standard`→medium, `top`→high. `xhigh` is never a default. Deviations need the one-line rationale in the plan.
 
@@ -51,9 +51,9 @@ Never silently escalate to the top tier on first failure; the manifest must show
 Plans stay portable: they carry framework tier and effort names only. DISPATCH resolves each
 cell against the **host being called**, not the lead session, through that host's adapter:
 
-- `framework/hosts/<host>.md` § Model map — tier → host model identifier.
-- `framework/hosts/<host>.md` § Effort map — effort → host field, and how `xhigh` clamps.
-- `framework/hosts/<host>.md` § Capability gaps — what the host cannot express.
+- `knowledge-base/framework/hosts/<host>.md` § Model map — tier → host model identifier.
+- `knowledge-base/framework/hosts/<host>.md` § Effort map — effort → host field, and how `xhigh` clamps.
+- `knowledge-base/framework/hosts/<host>.md` § Capability gaps — what the host cannot express.
 
 Rules that hold on every host:
 

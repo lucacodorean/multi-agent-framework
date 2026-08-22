@@ -1,56 +1,63 @@
 # CLAUDE.md — multi-agent framework
 
-This repository is the **framework itself**, not a project built with it. It ships a
-project-agnostic multi-agent operating system and the templates that instantiate it.
+This repository develops the **knowledge base**: a project-agnostic multi-agent framework, its
+worked example, and its documentation. It is not a project built with the framework.
 
 ```
-Framework Core   framework/**, .claude/skills/**   placeholders only, no project facts
-      ↓ consumes
-Project Context  project-context/**                created at instantiation, not present here
-      ↓ describes
-Project          the adopting repository
+knowledge-base/          the vendorable unit — copy this into a host repository
+  framework/             the core: rules, roles, contracts, templates, host adapters  READ-ONLY
+  examples/              worked instantiations, reference only, binding nothing
+  docs/                  documentation about the knowledge base
+.claude/skills/          framework-owned skills, mounted where the harness finds them
+prompts/                 the prompts and analyses that produced the current shape
 ```
 
-Read `framework/README.md` first, then `framework/rules/invariants.md` — those invariants
-are the acceptance criteria for every change made here.
+Read `knowledge-base/README.md` first, then
+`knowledge-base/framework/rules/invariants.md` — those invariants are the acceptance criteria
+for every change made here.
 
-## 1. Layout
+## 1. The three rules that shape the repository
 
-| path | contents | rule |
+- **The core is read-only (FI-25).** No agent edits `knowledge-base/framework/**`. A need that
+  does not fit is answered in a project's context, or by an extension beside the core (FI-26),
+  or by a task to whoever maintains the core. Enforcement is layered and reported by
+  `knowledge-base/framework/bin/lock-core.sh`; deliberate core work is
+  `lock-core.sh unlock` plus `FRAMEWORK_UNLOCK=1` on the commit. Editing the core *silently*
+  is the violation.
+- **Paths inside the unit are knowledge-base-relative (FI-27).** A file under
+  `knowledge-base/` cites `framework/rules/…`, never `knowledge-base/framework/rules/…`. Files
+  outside the unit — this file, `README.md`, the mounted skills — use the full vendor path.
+- **Examples bind nothing (FI-24).** `knowledge-base/examples/**` is read when a task names it
+  and never becomes precedent. The validator does not read it unless told to.
+
+## 2. Layout and ownership
+
+| path | contents | writable by an agent |
 |---|---|---|
-| `framework/rules/` | invariants, orchestration, engagement, working agreement, doc governance, artifact registry, CI gates, runtime topology | each rule lives in exactly one file; others point at it (FI-01) |
-| `framework/roles/` | role charters + the one shared standing-orders block | a charter states duties, never a project's paths or stack |
-| `framework/contracts/` | the project-context contract, the host-adapter contract, the agent-binding contract | the contract is the only list of placeholders |
-| `framework/templates/` | project-context templates, `CLAUDE.md`, agent binding, pipeline script, artifact templates | what an adopting project copies and fills |
-| `framework/hosts/` | one adapter per harness — the only files allowed to name a harness | capability claims carry the date they were verified |
-| `framework/bin/` | `validate-context.sh` | run it before reporting any change here as done |
-| `.claude/skills/` | generic skills: `task-orchestrator`, `tracker-intake`, `docs-compaction`, `user-stories-use-cases` | host-mounted because the harness discovers them there; framework-owned |
-| `examples/*/` | worked instantiations, read-only reference | binds nothing, is never precedent, and is read only when the task names it (FI-24) |
-| `prompts/` | the prompts and analyses that produced this split | working material |
+| `knowledge-base/framework/` | the core | **no** (FI-25) |
+| `knowledge-base/examples/` | worked instantiations | no |
+| `knowledge-base/docs/` | documentation about the knowledge base | yes |
+| `.claude/skills/` | the four generic skills | yes — framework-owned content at a host mount point |
+| `.claude/settings.json`, `.claude/statusline.sh` | operator configuration, not core | yes |
+| `prompts/` | working material | yes |
 
-`.claude/settings.json` and `.claude/statusline.sh` are operator configuration, not core.
-
-## 2. The rule that makes this work
-
-A core file carries `{{placeholders}}`; every placeholder resolves to exactly one entry in
-`framework/contracts/project-context.schema.md`. A project name, path, version, command or
-domain term stated directly in a core file is a defect (FI-23) — `validate-context.sh` fails
-on it.
+Harness directories belong to the orchestrating agent of that name (FI-21). A harness discovers
+agents and skills only at the repository root, so the unit cannot own those mount points —
+`knowledge-base/framework/hosts/` records where each host looks.
 
 ## 3. Changing the framework
 
-- Add a rule in exactly one file and point at it from everywhere it binds.
+- Add a rule in exactly one file and point at it from everywhere it binds (FI-01).
 - A new placeholder is added to the contract in the same change that first consumes it.
 - A role charter gains a duty only if that duty holds for every project. Otherwise it belongs
-  in a member record — `framework/templates/project-context/roster.md`.
-- A harness name appears only under `framework/hosts/`.
-- Run `framework/bin/validate-context.sh` before reporting done. Where an example
-  instantiation is present, validate it too by naming its context directory — the validator
-  never reads an example unless told to (FI-24).
+  in a member record — `knowledge-base/framework/templates/project-context/roster.md`.
+- A harness name appears only under `knowledge-base/framework/hosts/`.
+- Run `knowledge-base/framework/bin/validate-context.sh` before reporting done. Validate an
+  example only by naming its context directory.
 
 ## 4. Working agreement
 
-`framework/rules/working-agreement.md` binds work here too:
+`knowledge-base/framework/rules/working-agreement.md` binds work here too:
 
 - Never push. Commit only on explicit request.
 - Destructive operations require an explicit user-approved task.
@@ -59,6 +66,7 @@ on it.
 
 ## 5. Instantiating a project
 
-The six steps in `framework/README.md` § Initializing a project. Instantiation writes
-`project-context/**`, one binding per member per host, the index-and-law file, and the two
-project-owned convention files — and nothing under `framework/`.
+`knowledge-base/README.md` § Vendoring into a host repository, then
+`knowledge-base/framework/README.md` § Initializing a project. Instantiation writes the
+project's context, its bindings, its index-and-law file and its convention files — never
+anything under `knowledge-base/framework/`.
