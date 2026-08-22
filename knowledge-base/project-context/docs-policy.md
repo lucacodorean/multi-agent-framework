@@ -10,6 +10,7 @@ Rules: `framework/rules/documentation-governance.md`; lifecycles:
 | `docs.worker_channel` | `docs/_intake.md` |
 | `docs.metric` | `wc -w <file>` × 4/3, rounded down. No other metric counts — `wc -c` ÷ 4 overstates on this corpus, where em dashes and glyphs like `≤` are multi-byte in UTF-8 but cost no extra tokens |
 | `docs.archive_dir` | `docs/archive/` |
+| `docs.budget_grace` | 50 — an overrun smaller than this is reported and tolerated; beyond it, FI-18 applies |
 
 ## Allowed write paths — canonical, one copy
 

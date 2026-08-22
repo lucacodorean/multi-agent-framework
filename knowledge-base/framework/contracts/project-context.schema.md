@@ -98,6 +98,7 @@ Keys are fixed; values are the project's. Every value runs where the project say
 | `{{docs.worker_channel}}` | the append-only file every other agent reports doc impact to | `documentation-governance`, all roles |
 | `{{docs.metric}}` | the token metric of record, and how it is counted | `documentation-governance`, `docs-compaction` |
 | `{{docs.archive_dir}}` | where compaction moves removed content | `docs-compaction` |
+| `{{docs.budget_grace}}` | tokens a file may exceed its budget by before it is a finding. `0` holds the budget exactly; a small grace stops a rounding-scale overrun reading as a defect. It does not license growth — the budget is still the budget (FI-18) | `validate-context.sh` check 9 |
 | `{{docs.write_paths[]}}` | `{path, budget}` — the canonical whitelist, one copy, here | `documentation-governance` |
 | `{{docs.artifact_types[]}}` | `{type, path_pattern, writer, authorization, lifecycle, budget}` | `doc-artifact-registry` |
 | `{{docs.read_gated[]}}` | `{path, grant}` — paths needing an explicit grant to read | `documentation-governance` |

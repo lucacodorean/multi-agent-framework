@@ -77,7 +77,8 @@ loads, so an unrequested edit to it changes how every future session behaves.
 ### Budgets
 
 Count tokens as `{{docs.metric}}`. No other metric counts. Per-file allowances:
-`{{docs.write_paths[]}}`. On overrun, FI-18.
+`{{docs.write_paths[]}}`, with `{{docs.budget_grace}}` tokens of tolerance before an overrun is
+a finding. On overrun beyond that, FI-18: compress first, and report rather than force.
 
 ## Removed documents
 

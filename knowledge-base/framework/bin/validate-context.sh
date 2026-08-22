@@ -278,7 +278,10 @@ else
   # The metric is the policy's, not this script's: words x 4/3, rounded down. A budget cell that
   # is not a number ("none", prose) means the length follows the input rather than the author.
   tokens() { awk '{w+=NF} END{printf "%d", w*4/3}' "$1"; }
-  over=0; checked=0
+  # The tolerance is the policy's, not this script's. Absent means zero.
+  grace=$(grep -oE '^\| `docs\.budget_grace` \| *`?[0-9]+' "$CTX/docs-policy.md" | grep -oE '[0-9]+$' || true)
+  [ -z "$grace" ] && grace=0
+  over=0; within=0; checked=0
   while IFS= read -r row; do
     pth=$(printf '%s' "$row" | sed -n 's/^| *`\([^`]*\)`.*/\1/p')
     [ -z "$pth" ] && continue
@@ -289,10 +292,16 @@ else
     for f in $files; do
       [ -f "$f" ] || continue
       t=$(tokens "$f"); checked=$((checked+1))
-      [ "$t" -gt "$bud" ] && { note "  $f is $t tokens, over its $bud budget — compress, or report the overrun (FI-18)"; over=$((over+1)); }
+      if [ "$t" -gt $((bud + grace)) ]; then
+        note "  $f is $t tokens, over its $bud budget by $((t - bud)) — compress, or report the overrun (FI-18)"
+        over=$((over+1))
+      elif [ "$t" -gt "$bud" ]; then
+        echo "  $f is $t tokens, $((t - bud)) over its $bud budget — inside the ${grace}-token grace"
+        within=$((within+1))
+      fi
     done
   done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$CTX/docs-policy.md")
-  [ "$over" -eq 0 ] && echo "  all $checked budgeted files are within budget"
+  [ "$over" -eq 0 ] && echo "  $checked budgeted files checked, grace ${grace}, $within inside it, none over"
 fi
 
 echo

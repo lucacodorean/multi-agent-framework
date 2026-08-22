@@ -10,6 +10,7 @@ Contract: `framework/contracts/project-context.schema.md` § docs-policy.md. Rul
 | `docs.worker_channel` | <append-only intake file> |
 | `docs.metric` | <token metric and how it is counted> |
 | `docs.archive_dir` | <where compaction moves removed content> |
+| `docs.budget_grace` | <tokens a file may exceed its budget by before it is a finding; `0` for none> |
 
 ## Allowed write paths — canonical, one copy
 
