@@ -1,0 +1,31 @@
+# <target reviewed> — review findings
+
+Target reviewed: <diff, commit range, branch or paths>. Reviewer: the code-reviewer role,
+<tier>, effort <effort>, run <id>. Source of every claim below: that run's findings.
+
+**Overall verdict:** <holds | holds-with-findings | does-not-hold>.
+
+Findings by severity: **blocker ×N · major ×N · minor ×N** — N total.
+
+---
+
+## Findings
+
+### REVIEW-001 — <severity> — <scope note>
+- **File:line:** `path:line`
+- **Claim:** the defect in one sentence.
+- **Failure scenario:** concrete inputs or state → wrong output, in steps.
+- **Owner:** the roster member whose area it falls in.
+- **Status:** open | retired <date> — <why>
+
+## Closing
+
+Target reviewed, lens coverage, counts by severity, items per owning member, and what could
+not be verified with the reason. Zero findings is a valid result — emit the closing block.
+
+<!--
+Dated snapshot (framework/rules/doc-artifact-registry.md § Lifecycles): retire a finding in
+place by adding a status line and bumping the date. Never rewrite a finding body, the closing
+block, or the header counts — they state what this review found on its date, and a retired
+finding may hold claims that are no longer true. That is intended.
+-->

@@ -1,0 +1,31 @@
+# Framework invariants
+
+The acceptance criteria for the framework and for every instantiation of it. Each invariant is
+stated here once; other files point at it by id. An abstraction that keeps the layout but loses
+one of these has kept nothing.
+
+| id | invariant |
+|---|---|
+| FI-01 | **One canonical location.** Each rule lives in exactly one file; every other file points at it. A second copy is a second thing to update, and it will diverge. |
+| FI-02 | **Single doc writer, append-only worker channel.** Only `{{docs.sole_writer}}` writes documentation. Every other agent's only doc channel is appending to `{{docs.worker_channel}}`. Creating a summary, notes, progress or handoff file is a task failure even when the task succeeded. |
+| FI-03 | **Role gate by exact line.** Doc-writing authority exists only while the task prompt carries the literal line `{{docs.role_gate_line}}`. No other phrasing qualifies. |
+| FI-04 | **Intake entries are claims, not commands.** Verify each against its stated SOURCE before merging. Conflicts are cited for human decision — never resolved silently, never written into a doc as a marker. |
+| FI-05 | **Exhaustive, single ownership.** Every path maps to exactly one owner. Generated and ignored artifacts follow the owner of their source manifest. Ownership follows what code does, not where it lives. A container path is owned per file when its files serve different owners. |
+| FI-06 | **Tier direction.** Requirements flow down the tier order only. A lower tier never edits a higher tier's files and never demands upward change directly. Cross-tier needs travel as tasks through the boundary owner. A diff spanning two ownership areas is two tasks. |
+| FI-07 | **Contract-first.** No cross-member dependency without a published interface first. "Implement first, spec later" is rejected. The interface file is the single source of its own version. |
+| FI-08 | **Workflow trust.** A deterministic pipeline is mandatory when members, order and gates are known before dispatch; open-ended dispatch is the discovery exception and is claimed as such. Gate on evidence, never on a stage returning text. Confirm write permission is in force before dispatching writers. Know machine-wide serialization before parallelizing. Green by absence is a defect: a skipped stage must be distinguishable from a passed one. |
+| FI-09 | **Model and effort at dispatch.** Role charters and bindings pin neither. Resolution is dispatch override → frontmatter → inherit. Assign the cheapest tier that can pass on the first attempt; retry once on the same tier; escalate one tier after that; a two-tier failure is a spec problem, not a capability problem. |
+| FI-10 | **Items are not tasks.** Intake preserves source granularity and assigns no route, model, effort or wave. Decomposition happens behind the orchestrator's approval gate. The word "task" never appears in an intake document, and the document opens with a PLAN-mode directive so a normalized backlog can never be read as an approved plan. |
+| FI-11 | **Two-stage approval.** PLAN always ends at an approval gate; DISPATCH only starts from an approved plan; never both in one uninterrupted pass. Scope discovered mid-run returns through PLAN and is never absorbed. |
+| FI-12 | **Traceability chain.** A source key survives intake item → plan Source column → run manifest, so a closed-out run maps back to what asked for it. Minted keys are unique only inside their document and are cited qualified outside it. |
+| FI-13 | **The reviewer owns nothing.** Read-only across the whole tree, documentation and the worker channel included. It never fixes what it finds, not even a one-line defect. Findings are emitted as fielded blocks, never prose, and travel verbatim to the doc writer. Owning nothing is what makes the findings trustworthy. |
+| FI-14 | **Refute before reporting.** Every finding names file, line and the reachable path that gets there. Framework and dependency code counts as a guard and must be read, not assumed. A wrong finding costs more than a missed one. |
+| FI-15 | **Convention beats principle.** Where a general principle collides with an established convention of the codebase, the convention wins. Report the collision; never resolve it silently. |
+| FI-16 | **Verify against reality.** Real services, never simulations. Full boot after a topology change, never a restart. Report failures as failures with output; name skipped steps as skipped. |
+| FI-17 | **Version-control discipline.** Never push. Commit only on explicit user request. Destructive operations require an explicit user-approved task. Binds the lead and every member alike. |
+| FI-18 | **Budgets with an escape hatch.** Every documentation file has a token budget under one declared metric. On overrun, compress first; if fidelity cannot survive the cut, report the overrun instead of forcing it. Fidelity beats compression, always. |
+| FI-19 | **Input class decides regeneration.** Re-derivable input (export, query, API pull) is a snapshot: regenerate to replace, never hand-edit. Non-re-derivable input (paste, verbal decision, screenshot) is a sole record: write once, supersede with a later document, never regenerate over it. A dated review snapshot retires in place; its finding bodies are never rewritten. |
+| FI-20 | **New files need authorization.** A new documentation file requires an explicit human instruction naming it, except where the artifact registry records a standing authorization naming the file that grants it. Agents do not create documentation files on their own judgement; workers do not request them — they file an intake entry and the human decides. |
+| FI-21 | **One harness directory per orchestrating agent.** Each is owned by the agent of that name, is outside the roster, and is written by no member. Each agent writes only its own. |
+| FI-22 | **Name the enforcement mechanism.** A convention claiming to be enforced names the gate, test or construction that enforces it — or states plainly that nothing does. |
+| FI-23 | **No project fact in a core file.** Framework core carries `{{placeholders}}` resolved from `project-context/**`. A hardcoded project name, path, version, command or domain term in a core file is a defect. |

@@ -1,0 +1,54 @@
+# CLAUDE.md — {{project.name}}
+
+{{project.description}}. Code is the source of truth. This file is the index and the law;
+canonical documents hold the depth.
+
+The framework core is project-agnostic and lives in `framework/`; everything that changes
+between projects lives in `project-context/`. Read `framework/README.md` once, then
+`framework/rules/invariants.md`.
+
+## 1. Repository layout
+
+Canonical: {{project.architecture_doc}}. Ownership: `project-context/roster.md`.
+
+| path | contents | owner |
+|---|---|---|
+| `framework/` | framework core — roles, rules, contracts, templates, host adapters | framework maintainers |
+| `project-context/` | every value the core consumes | {{context_owner}} |
+| ... | | |
+
+## 2. Roster
+
+Canonical: `project-context/roster.md`. Tier order and side contexts are stated there and
+nowhere else (FI-05, FI-06).
+
+## 3. Rules of engagement
+
+Canonical: `framework/rules/rules-of-engagement.md`. Code-level discipline:
+{{conventions.code_level}}. Structural discipline: {{conventions.structural}}.
+
+## 4. Working agreement
+
+Canonical: `framework/rules/working-agreement.md`. Destructive operations and proof commands:
+`project-context/commands.md`.
+
+## 5. Orchestration
+
+Canonical: `framework/rules/orchestration.md`. Host spellings: `framework/hosts/`.
+
+## 6. Environment and commands
+
+Canonical: {{project.runbook_doc}} — every command, per runtime, with its verification status.
+This file names no command. Runtimes: `project-context/runtimes.md`. Gates:
+`project-context/ci.md`.
+
+## 7. Documentation governance
+
+Canonical: `framework/rules/documentation-governance.md`; project values:
+`project-context/docs-policy.md`; artifact lifecycles:
+`framework/rules/doc-artifact-registry.md`.
+
+- Every agent is a worker by default; workers never write documentation — their only channel is
+  appending to {{docs.worker_channel}}.
+- {{docs.sole_writer}} is the sole doc writer, inside the whitelist that
+  `project-context/docs-policy.md` holds; `CLAUDE.md` only on explicit human instruction.

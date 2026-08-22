@@ -1,0 +1,35 @@
+# Architecture
+
+The system, independent of where it runs. Every claim cites its source path — never a copy of
+the source (FI-01). Ownership: `project-context/roster.md`. Budget: the entry for this file in
+`{{docs.write_paths[]}}`.
+
+## System
+
+{{project.description}}. The deployable contexts and what couples them — one paragraph each,
+citing the manifest that pins each stack (`project-context/stack.md`).
+
+## Boundary
+
+What `{{conventions.boundary.interface_paths[]}}` publishes, in
+`{{conventions.boundary.formats[]}}`, with the error model
+`{{conventions.boundary.error_model}}` and versioning `{{conventions.boundary.versioning}}`.
+
+## Runtimes
+
+One row per entry in `project-context/runtimes.md`, each pointing at its own topology file.
+Nothing here depends on which runtime is up (`framework/rules/runtime-topology.md`).
+
+## Layout
+
+One row per area, contents only — the owner is in the roster, not here.
+
+## Runtime behaviour
+
+The paths a request actually takes, each step citing the code that performs it. State what is
+NOT served as explicitly as what is.
+
+## CI — gates
+
+One row per entry in `project-context/ci.md`, stating what each gate proves.
+Rules: `framework/rules/ci-gates.md`.
