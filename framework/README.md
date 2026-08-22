@@ -11,6 +11,33 @@ Project Context  (project-context/**)
 Project Artifacts (CLAUDE.md, docs/**, infra/**, the codebase)
 ```
 
+## The core is read-only (FI-25)
+
+No agent edits `framework/**`. A need that does not fit is answered in one of three places,
+in this order:
+
+1. **A value that varies per project** → the project context. That is what the contract is for.
+2. **Something the core does not do** → an extension beside the core, never inside it (FI-26).
+3. **A defect in a rule** → a task to whoever maintains the core. Not a local fix.
+
+Enforcement is layered — filesystem lock, commit hook, per-host deny rules, and the
+validator's report. `framework/bin/lock-core.sh` installs and reports it. None of the layers
+is absolute against an agent with a shell; together they make a core edit deliberate and
+visible rather than accidental, which is the achievable goal (FI-22). Editing the core
+*silently* is the violation.
+
+## Extending without touching the core (FI-26)
+
+An extension is a wrapper directory beside the core, listed in one index so that a rule lookup
+stays a single lookup. It may **add** — a rule, a role, a host adapter, an artifact kind, a
+placeholder — and may **narrow** an existing rule by pointing at it. It may not restate,
+shadow or override anything the core states: that would put one rule in two files and break
+FI-01.
+
+No extension mechanism is built yet, and none should be until a second real case exists —
+speculative machinery is exactly what the discipline in this framework rejects. The constraint
+above is fixed now so the shape is not decided under pressure later.
+
 ## The rule that makes this work
 
 Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one entry in
@@ -30,7 +57,7 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `.claude/skills/` | generic skills; host-mounted because the harness discovers them there | by framework maintainers only |
 | `project-context/` | every value that changes between projects; created at instantiation — absent in the framework repository itself | **by the project** |
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |
-| `examples/<project>/` | one worked instantiation, read-only reference | nobody — it binds nothing |
+| `examples/<project>/` | one worked instantiation, read-only reference | nobody — it binds nothing (FI-24) |
 | `CLAUDE.md`, `docs/**`, `infra/**` | project artifacts | **by the project** |
 
 ## Ownership
@@ -57,7 +84,8 @@ Initializing a new project modifies project-owned artifacts only.
    never the content.
 6. Run `framework/bin/validate-context.sh`.
 
-A worked instantiation to compare against: the example under `examples/` (see the repository README).
+An example instantiation, where one is present, can be validated the same way by naming its
+context directory. It is a demonstration, never a source of rules (FI-24).
 
 ## Reading order for an agent
 

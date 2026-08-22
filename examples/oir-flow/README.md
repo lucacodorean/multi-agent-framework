@@ -4,6 +4,10 @@ One worked instantiation of the framework core, kept as reference. **Read-only**
 is authoritative, nothing here is maintained, and no rule here binds a new project. The
 framework is `framework/`; this directory only shows what filling it in looks like.
 
+FI-24 governs how an agent may use this directory: it binds nothing, it is never precedent, no
+convention is derived from it, and it is read only when the task names it. Where it disagrees
+with a framework rule, the example is stale and the rule wins.
+
 | path | what it demonstrates |
 |---|---|
 | `project-context/` | all nine context files, filled — the complete resolution of `framework/contracts/project-context.schema.md` |

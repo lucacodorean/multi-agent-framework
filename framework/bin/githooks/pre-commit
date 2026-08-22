@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+# Refuse a commit that changes framework core (FI-25).
+#
+# Installed by framework/bin/lock-core.sh, which points core.hooksPath here. Deliberate core
+# work sets FRAMEWORK_UNLOCK=1 for the commit, which is logged in the hook's output so the
+# change is visible rather than silent.
+#
+# CORE_PATH tracks the core's location: set FRAMEWORK_CORE_PATH when the core is vendored
+# under a workspace directory.
+set -e
+
+CORE=${FRAMEWORK_CORE_PATH:-framework}
+changed=$(git diff --cached --name-only --diff-filter=ACMRDT -- "$CORE" 2>/dev/null || true)
+
+[ -z "$changed" ] && exit 0
+
+if [ "${FRAMEWORK_UNLOCK:-}" = "1" ]; then
+  printf 'FI-25: core change committed with FRAMEWORK_UNLOCK=1 —\n'
+  printf '%s\n' "$changed" | sed 's/^/  /'
+  exit 0
+fi
+
+printf 'REFUSED: this commit changes framework core (FI-25).\n\n'
+printf '%s\n' "$changed" | sed 's/^/  /'
+printf '\nCore is read-only. Answer the need where it belongs:\n'
+printf '  - a value that varies per project  -> the project context\n'
+printf '  - something the core does not do   -> an extension beside it (FI-26)\n'
+printf '  - a defect in a rule               -> a task to whoever maintains the core\n\n'
+printf 'Deliberate core work:  FRAMEWORK_UNLOCK=1 git commit ...\n'
+exit 1

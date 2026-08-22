@@ -11,7 +11,7 @@ Project Context  project-context/**                created at instantiation, not
 Project          the adopting repository
 ```
 
-Read `framework/README.md` first, then `framework/rules/invariants.md` — those 23 invariants
+Read `framework/README.md` first, then `framework/rules/invariants.md` — those invariants
 are the acceptance criteria for every change made here.
 
 ## 1. Layout
@@ -25,7 +25,7 @@ are the acceptance criteria for every change made here.
 | `framework/hosts/` | one adapter per harness — the only files allowed to name a harness | capability claims carry the date they were verified |
 | `framework/bin/` | `validate-context.sh` | run it before reporting any change here as done |
 | `.claude/skills/` | generic skills: `task-orchestrator`, `tracker-intake`, `docs-compaction`, `user-stories-use-cases` | host-mounted because the harness discovers them there; framework-owned |
-| `examples/oir-flow/` | one worked instantiation, read-only reference | binds nothing; never cite it as a rule |
+| `examples/*/` | worked instantiations, read-only reference | binds nothing, is never precedent, and is read only when the task names it (FI-24) |
 | `prompts/` | the prompts and analyses that produced this split | working material |
 
 `.claude/settings.json` and `.claude/statusline.sh` are operator configuration, not core.
@@ -44,8 +44,9 @@ on it.
 - A role charter gains a duty only if that duty holds for every project. Otherwise it belongs
   in a member record — `framework/templates/project-context/roster.md`.
 - A harness name appears only under `framework/hosts/`.
-- Run `framework/bin/validate-context.sh` (and once against
-  `examples/oir-flow/project-context`) before reporting done.
+- Run `framework/bin/validate-context.sh` before reporting done. Where an example
+  instantiation is present, validate it too by naming its context directory — the validator
+  never reads an example unless told to (FI-24).
 
 ## 4. Working agreement
 

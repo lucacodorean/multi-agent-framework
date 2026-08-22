@@ -6,11 +6,14 @@
 #   2. core purity — no core file states a project fact (FI-23);
 #   3. binding thinness — every binding names a charter, a member record and the standing
 #      orders, and pins no model or effort (FI-09);
-#   4. reference integrity — every framework/ and project-context/ path cited resolves.
+#   4. reference integrity — every framework/ and project-context/ path cited resolves;
+#   5. example isolation — no core file depends on the content of a concrete example (FI-24);
+#   6. core protection — at least one layer is keeping the core read-only (FI-25), and any
+#      uncommitted core change is reported so it cannot be silent.
 #
 # Usage: framework/bin/validate-context.sh [context-dir]
-#   With no argument: ./project-context if it exists, else the first examples/*/project-context,
-#   else the core is checked alone (a distribution repo with no instantiation).
+#   With no argument: ./project-context if it exists, else the core is checked alone. An example
+#   instantiation is NEVER read unless its context directory is named explicitly (FI-24).
 #
 # Read-only. Exit 0 clean, 1 with findings.
 set -uo pipefail
@@ -25,10 +28,8 @@ fail=0
 note() { printf '%s\n' "$*"; fail=1; }
 
 CTX=${1:-}
-if [ -z "$CTX" ]; then
-  if [ -d project-context ]; then CTX=project-context
-  else CTX=$(find examples -maxdepth 2 -type d -name project-context 2>/dev/null | head -1); fi
-fi
+# No implicit fallback to examples/: an example is a demonstration, not a context (FI-24).
+[ -z "$CTX" ] && [ -d project-context ] && CTX=project-context
 
 core_files() {
   find framework .claude/skills -type f \( -name '*.md' -o -name '*.template' \) 2>/dev/null \
@@ -42,6 +43,8 @@ pure_files() { core_files | grep -v '^framework/hosts/'; }
 echo "== 1. contract completeness"
 if [ -z "$CTX" ]; then
   echo "  no instantiation present — core checked alone (copy framework/templates/project-context/ to instantiate)"
+  ex=$(find examples -maxdepth 2 -type d -name project-context 2>/dev/null | head -1)
+  [ -n "$ex" ] && echo "  an example exists at $ex and was NOT read (FI-24) — name it to validate it"
 else
   echo "  context: $CTX"
   for f in "${CONTEXT_FILES[@]}"; do
@@ -74,7 +77,11 @@ hits=$(pure_files | xargs grep -niE "$STACK_TERMS" 2>/dev/null || true)
 [ "$purity" -eq 0 ] && echo "  no project identity or stack term in core"
 
 echo "== 3. binding thinness"
-bindings=$(find . -path ./.git -prune -o -path '*/node_modules' -prune -o -path '*/agents/*.md' -print 2>/dev/null | sort)
+# Bindings are checked beside the resolved context only. With no context, the root harness
+# directories; with a named context, that context's siblings. An example's bindings are checked
+# when, and only when, its context was named (FI-24).
+BINDING_BASE=$([ -n "$CTX" ] && dirname "$CTX" || echo .)
+bindings=$(find "$BINDING_BASE" -maxdepth 3 -path '*/node_modules' -prune -o -path '*/agents/*.md' -print 2>/dev/null | sort)
 if [ -z "$bindings" ]; then
   echo "  no bindings present — render them from framework/templates/agent-binding.md.template"
 else
@@ -101,6 +108,33 @@ done < <({ core_files; [ -n "$CTX" ] && ls "$CTX"/*.md; } 2>/dev/null \
           | xargs grep -hoE '(framework|project-context)/[A-Za-z0-9_./-]+' 2>/dev/null \
           | sed 's/[.,)]*$//' | sort -u)
 [ "$missing" -eq 0 ] && echo "  every framework/ and project-context/ reference resolves"
+
+echo "== 5. example isolation (FI-24)"
+# A core file may name the directory generically (`examples/`, `examples/<project>/`); it may
+# not depend on a concrete example.
+hits=$(core_files | xargs grep -nIoE 'examples/[a-z0-9][A-Za-z0-9_.-]*' 2>/dev/null | grep -v 'examples/<' || true)
+if [ -n "$hits" ]; then
+  note "  core file depends on a concrete example:"; printf '%s\n' "$hits" | sed 's/^/    /'
+else
+  echo "  no core file depends on a concrete example"
+fi
+
+echo "== 6. core protection (FI-25)"
+CORE=${FRAMEWORK_CORE_PATH:-framework}
+HOOKS="$CORE/bin/githooks"
+fs_locked=no; [ -w "$CORE/rules/invariants.md" ] || fs_locked=yes
+hook_on=no;   [ "$(git config --get core.hooksPath 2>/dev/null || true)" = "$HOOKS" ] && hook_on=yes
+echo "  filesystem lock: $fs_locked · commit hook: $hook_on"
+if [ "$fs_locked" = no ] && [ "$hook_on" = no ]; then
+  note "  nothing is protecting the core — run $CORE/bin/lock-core.sh lock"
+fi
+dirty=$(git status --porcelain -- "$CORE" 2>/dev/null || true)
+if [ -n "$dirty" ]; then
+  echo "  uncommitted core changes (deliberate core work must be visible, FI-25):"
+  printf '%s\n' "$dirty" | sed 's/^/    /'
+else
+  echo "  no uncommitted core changes"
+fi
 
 echo
 [ "$fail" -eq 0 ] && echo "PASS" || echo "FINDINGS — see above"

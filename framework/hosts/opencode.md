@@ -41,6 +41,13 @@ Project-configured; state the mapping here when the project configures one.
 Not exposed. Expand the assigned effort in the dispatch prompt as behaviour, and mark the
 forfeit in the run manifest (FI-09).
 
+## Core protection
+
+`permission: edit: deny` is per-binding, not per-path: it makes one agent read-only
+everywhere, which is how the reviewer role is expressed here. A path-scoped equivalent is
+unrecorded, so this host contributes no FI-25 layer of its own — the filesystem lock and the
+commit hook carry it.
+
 ## Capability gaps
 
 - No inter-agent messaging: a background member's outcome must be its final response.

@@ -72,6 +72,17 @@ every other host — never make a rule depend on it.
 
 Local filesystem only. Input files arrive at paths the user names; there is no upload directory.
 
+## Core protection
+
+Path-scoped deny rules in the harness settings are this host's layer of FI-25 — entries of the
+form `Edit(<core>/**)` and `Write(<core>/**)` under `permissions.deny`.
+
+- UNVERIFIED (2026-08-22): whether a deny rule still binds when `permissions.defaultMode` is
+  set to a bypassing mode. Verify before relying on this layer alone.
+- Known gap: deny rules match tool calls. A write performed through `Bash` — a heredoc, a
+  stream editor in place — does not go through `Edit` or `Write` and is not matched. The
+  filesystem lock is the layer that covers it (`framework/bin/lock-core.sh`).
+
 ## Permission posture
 
 `.claude/settings.json` is operator configuration, not framework core. The framework grants no
