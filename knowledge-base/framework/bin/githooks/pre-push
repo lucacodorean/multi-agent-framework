@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+# Refuse a push that would carry a framework-core change to other engineers (FI-25).
+#
+# A core change reaching a shared remote is not an edit, it is a release: every engineer and
+# every vendored copy downstream inherits it. Committing one is deliberate
+# (FRAMEWORK_UNLOCK=1); publishing one is a second, separate deliberate act.
+#
+# Installed by framework/bin/lock-core.sh, which points core.hooksPath at this directory.
+set -e
+
+CORE=${FRAMEWORK_CORE_PATH:-$(git config --get core.hooksPath 2>/dev/null | sed 's|/bin/githooks/*$||')}
+[ -z "$CORE" ] && CORE=knowledge-base/framework
+
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+touched=""
+version_ranges=""
+version_bumped=""
+
+# stdin: <local ref> <local sha> <remote ref> <remote sha>
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue                      # branch deletion
+  if [ "$remote_sha" = "$zero" ]; then
+    range=$(git rev-list "$local_sha" --not --remotes 2>/dev/null | tail -1)
+    [ -n "$range" ] && range="$range^..$local_sha" || range="$local_sha"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+  hits=$(git diff --name-only "$range" -- "$CORE" 2>/dev/null || true)
+  [ -n "$hits" ] && touched="$touched$hits
+"
+  if [ -n "$hits" ]; then
+    version_ranges="yes"
+    git diff --name-only "$range" -- "$CORE/VERSION" 2>/dev/null | grep -q . && version_bumped="yes"
+  fi
+done
+
+[ -z "$touched" ] && exit 0
+
+if [ "${FRAMEWORK_PUBLISH:-}" = "1" ]; then
+  # A release names itself. If the core changed and its version did not, nobody downstream can
+  # say what they are inheriting.
+  if [ -n "$version_ranges" ] && [ -z "$version_bumped" ]; then
+    printf 'REFUSED: this push changes the core but leaves %s/VERSION untouched.\n\n' "$CORE"
+    printf 'A consumer has nothing else to point at to say which core it vendored. Bump the\n'
+    printf 'version, then publish.\n'
+    exit 1
+  fi
+  printf 'FI-25: publishing a core change with FRAMEWORK_PUBLISH=1 —\n'
+  printf '%s' "$touched" | sort -u | sed 's/^/  /'
+  printf '\nVersion published: %s\n' "$(git show "HEAD:$CORE/VERSION" 2>/dev/null || echo unknown)"
+  printf 'Everyone consuming this core inherits it. Say so in the release note.\n'
+  exit 0
+fi
+
+printf 'REFUSED: this push carries a framework-core change (FI-25).\n\n'
+printf '%s' "$touched" | sort -u | sed 's/^/  /'
+printf '\nOther engineers and every vendored copy downstream inherit a core change, so\n'
+printf 'publishing one is a release, not an edit. Before pushing it:\n'
+printf '  - confirm it belongs in the core at all, and not in a project context or an\n'
+printf '    extension beside the core (FI-26);\n'
+printf '  - confirm the validator passes;\n'
+printf '  - tell whoever consumes the core what changed.\n\n'
+printf 'Then:  FRAMEWORK_PUBLISH=1 git push ...\n'
+exit 1

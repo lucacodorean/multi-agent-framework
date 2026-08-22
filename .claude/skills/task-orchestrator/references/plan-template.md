@@ -15,7 +15,7 @@ Emit plans in exactly this structure. Keep prose tight — the table is the prod
 
 | ID | Task | Source | Route | Model | Effort | Depends on | Wave | Acceptance criteria | Routing rationale |
 |----|------|--------|-------|-------|--------|-----------|------|--------------------|-------------------|
-| T1 | ...  | KEY \| — | workflow \| agent | haiku \| sonnet \| opus | low \| med \| high \| xhigh | — | 1 | [mechanically checkable] | [one line] |
+| T1 | ...  | KEY \| — | workflow \| agent | cheap \| standard \| top | low \| med \| high \| xhigh | — | 1 | [mechanically checkable] | [one line] |
 
 ## Waves
 
@@ -34,6 +34,6 @@ Rules:
 
 - Task descriptions in the table stay to one line; if a task needs a paragraph to describe, it is probably two tasks.
 - Acceptance criteria must be checkable by someone (or some agent) who didn't do the work.
-- Every routing cell gets a rationale — "sonnet/medium because standard implementation against a clear spec" is enough. The user is approving the economics, not just the work.
+- Every routing cell gets a rationale — "standard/medium because standard implementation against a clear spec" is enough. The user is approving the economics, not just the work.
 - IDs are stable: once a plan is presented, edits change rows but never renumber, so approval discussion can reference IDs safely.
 - **Source** carries the tracker key(s) of the item(s) a task came from, verbatim — comma-separated when a task merges several items; the same key repeats across rows when one item decomposes into several tasks. Tasks with no tracker origin (goals stated in chat, work the decomposition itself created) get `—`. Every key present in § must appear in at least one row: that chain is what lets a run manifest be mapped back later to the item it came from. Minted keys (`ITEM-001`) are unique only inside their intake document, so cite them qualified — `2026-08-12-ba-scope#ITEM-001` — pointing at one intake document and one item in it.

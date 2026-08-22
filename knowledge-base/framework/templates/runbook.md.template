@@ -1,0 +1,30 @@
+# Runbook
+
+Every command, per runtime, with its verification status. Mark anything not verified by
+execution as UNVERIFIED, with the date of the last verification run. The key set is
+`project-context/commands.md`; this file holds the per-runtime detail. Budget: the entry for
+this file in `{{docs.write_paths[]}}`.
+
+## Environment up — <runtime id>
+
+The one documented path from a fresh clone to a working install. A manual step here is a bug
+(`framework/rules/runtime-topology.md`).
+
+## Daily commands
+
+| task | command |
+|---|---|
+| … | `{{commands.*}}` |
+
+## Test-suite discipline
+
+What serializes, what the dedicated test resources are, and what a strange failure means.
+
+## CI gates
+
+Local reproduction is the same script the CI host runs (`framework/rules/ci-gates.md`). One row
+per gate, plus the serialization rule.
+
+## Gotchas
+
+Measured behaviours that cost someone an hour. Each states how it was observed.

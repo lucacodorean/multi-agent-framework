@@ -8,7 +8,7 @@ One block per task. **Self-contained is the whole point**: the receiving agent h
 
 ```markdown
 ## [T4] [Task title]
-**Model:** sonnet · **Effort:** medium · **Wave:** 2 · **Depends on:** T1 (done) · **Source:** KEY | —
+**Tier:** standard · **Effort:** medium · **Wave:** 2 · **Depends on:** T1 (done) · **Source:** KEY | —
 
 ### Context
 [Why this task exists, in 2–4 lines. What the project is, what wave 1 produced that this builds on.]
@@ -38,7 +38,7 @@ Deterministic tasks execute as a strict checklist — no agent judgment mid-flig
 
 ```markdown
 ## [T1] [Task title] — workflow
-**Executor:** direct (this session) | haiku agent
+**Executor:** direct (this session) | `cheap` agent
 
 | # | Step | Command / action | Expected result | On failure |
 |---|------|------------------|-----------------|-----------|
@@ -58,10 +58,10 @@ The live state of a dispatch. Create it when dispatch starts; update it as resul
 
 **Plan:** [path/link to approved plan] · **Wave protocol:** [auto-continue / gated]
 
-| ID | Task | Source | Route | Model | Effort | Status | Result notes |
+| ID | Task | Source | Route | Tier | Effort | Status | Result notes |
 |----|------|--------|-------|-------|--------|--------|--------------|
-| T1 | ...  | KEY \| — | workflow | haiku | low | done | all steps passed |
-| T4 | ...  | KEY \| — | agent | sonnet→opus | med→high | done | escalated after 2 failures: [reason] |
+| T1 | ...  | KEY \| — | workflow | cheap | low | done | all steps passed |
+| T4 | ...  | KEY \| — | agent | standard→top | med→high | done | escalated after 2 failures: [reason] |
 
 **Status values:** pending · dispatched · done · failed · re-routed
 

@@ -1,6 +1,6 @@
 # Intake document template
 
-Emit intake documents in exactly this structure. Default persist path: `docs/tracker/YYYY-MM-DD-<scope>-intake.md` (scope: sprint, filter, or team — short, kebab-case). Path, who writes, and whether a later run replaces the file come from SKILL.md Step 0, not from this template.
+Emit intake documents in exactly this structure. The persist path, its writer and its lifecycle come from the intake entry in `{{docs.artifact_types[]}}` via SKILL.md Step 0, not from this template; `<scope>` in that pattern is the sprint, filter or team — short, kebab-case.
 
 ```markdown
 > **Directive to task-orchestrator:** This is a normalized intake backlog, **not an approved plan**.
@@ -46,6 +46,6 @@ Emit intake documents in exactly this structure. Default persist path: `docs/tra
 - **No timestamps outside the header.** Item-level dates come from the tracker (created/updated), which is fine; generation-time data appears once, in the header, so re-runs don't create diff noise.
 - **The summary table lists every item once**, gate status included — it's the at-a-glance view and the completeness check (table row count = header counts).
 - **The word "task" never appears below the directive block.** Items, throughout. (The directive itself addresses the orchestrator and legitimately names tasks and PLAN mode — that's its job.)
-- **No routing content anywhere** — no model names, effort levels, routes, or waves. If the source ticket itself contains routing opinions ("this is a quick haiku job"), they are tracker noise: strip them.
+- **No routing content anywhere** — no model names, effort levels, routes, or waves. If the source ticket itself contains routing opinions ("this is a quick cheap-tier job"), they are tracker noise: strip them.
 - Superseded items appear only in Amendments, not in Ready items.
 - **Pick the source-of-truth line by where the content came from.** Re-derivable input (an export, a query result) → the tracker-backed / snapshot line. Input that exists nowhere else (a pasted statement, a verbal decision, a screenshot) → the transit / sole-record line. The line describes the artifact so the next reader does not treat a paste like an export. It does not authorize overwrite or deletion.

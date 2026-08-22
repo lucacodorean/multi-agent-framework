@@ -1,0 +1,71 @@
+# CLAUDE.md — {{project.name}}
+
+{{project.description}}. Code is the source of truth. This file is the index and the law;
+canonical documents hold the depth.
+
+The framework core is project-agnostic and lives in `framework/`; everything that changes
+between projects lives in `project-context/`. Read `framework/README.md` once, then
+`framework/rules/invariants.md`.
+
+## 0. `{{kb.root}}framework/**` is READ-ONLY (FI-25)
+
+**Do not create, edit, move or delete any file under the core.** This binds every agent, in
+every task, including the lead. A need that does not fit is answered in this project's context,
+or by an extension beside the core (FI-26), or by a task to whoever maintains the core — never
+by editing it. Do not push a core change: everyone consuming the core inherits it, so publishing
+one is a release.
+
+Two rules an agent can only learn here, because this is the file every agent loads:
+
+- **The anchor `kb.root` is `{{kb.root}}`** — this line is where an agent resolves it. A file
+  outside the unit cites `{{kb.root}}framework/…`; a file inside it cites `framework/…`,
+  knowledge-base-relative (FI-27).
+- **Example material is read-gated and binds nothing (FI-24).** It is opened only when the task
+  prompt carries the grant `EXAMPLE-ACCESS:` naming what is needed from it, and it never becomes
+  precedent.
+
+## 1. Repository layout
+
+Canonical: {{project.architecture_doc}}. Ownership: `project-context/ownership.md`.
+
+| path | contents | owner |
+|---|---|---|
+| `framework/` | framework core — roles, rules, contracts, templates, host adapters | framework maintainers |
+| `project-context/` | every value the core consumes | per `project-context/ownership.md` |
+| ... | | |
+
+## 2. Roster
+
+Canonical: `project-context/ownership.md`. Tier order and side contexts are stated there and
+nowhere else (FI-05, FI-06).
+
+## 3. Rules of engagement
+
+Canonical: `framework/rules/rules-of-engagement.md`. Code-level discipline:
+{{conventions.code_level}}. Structural discipline: {{conventions.structural}}.
+
+## 4. Working agreement
+
+Canonical: `framework/rules/working-agreement.md`. Destructive operations and proof commands:
+`project-context/commands.md`.
+
+## 5. Orchestration
+
+Canonical: `framework/rules/orchestration.md`. Host spellings: `framework/hosts/`.
+
+## 6. Environment and commands
+
+Canonical: {{project.runbook_doc}} — every command, per runtime, with its verification status.
+This file names no command. Runtimes: `project-context/runtimes.md`. Gates:
+`project-context/ci.md`.
+
+## 7. Documentation governance
+
+Canonical: `framework/rules/documentation-governance.md`; project values:
+`project-context/docs-policy.md`; artifact lifecycles:
+`framework/rules/doc-artifact-registry.md`.
+
+- Every agent is a worker by default; workers never write documentation — their only channel is
+  appending to {{docs.worker_channel}}.
+- {{docs.sole_writer}} is the sole doc writer, inside the whitelist that
+  `project-context/docs-policy.md` holds; `CLAUDE.md` only on explicit human instruction.

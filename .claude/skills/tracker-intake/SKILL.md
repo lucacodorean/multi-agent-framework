@@ -21,19 +21,19 @@ Everything this skill produces is an **item**, never a "task". The distinction i
 Consequences, all non-negotiable:
 
 - The word "task" does not appear in the intake document.
-- No item is ever assigned route, model, effort, or wave. Severity and priority pass through as **priority signal** — input to the orchestrator's routing, not a routing decision made here. If tempted to note "this one's probably haiku/low", don't — the user approves routing economics at the orchestrator's gate, not by reading intake margins.
+- No item is ever assigned route, model, effort, or wave. Severity and priority pass through as **priority signal** — input to the orchestrator's routing, not a routing decision made here. If tempted to note "this one's probably cheap/low", don't — the user approves routing economics at the orchestrator's gate, not by reading intake margins.
 - The intake document must not be mistakable for an approved plan. Task-orchestrator's mode detection routes "already-structured task lists" to DISPATCH; a normalized backlog looks exactly like one. The doc therefore opens with an explicit PLAN-mode directive (baked into the doc template), which closes that hole deterministically.
 
 ## Step 0 — read project conventions
 
-Project docs override skill defaults. Look for `CLAUDE.md`, `AGENTS.md`, `docs/conventions*`, and any documentation-governance rules, then check:
+Project rules override skill defaults. Read `{{kb.root}}/framework/rules/documentation-governance.md`, `{{kb.root}}/framework/rules/doc-artifact-registry.md` and `project-context/docs-policy.md`, then check:
 
-- **Path** — default `docs/tracker/YYYY-MM-DD-<scope>-intake.md`. Docs or the user may name another path, or none (emit inline only).
-- **Who writes** — default: this session writes if a path is in play. If docs name another writer or forbid this session from writing `.md`, do not write: emit the document in the reply and name the authorized writer.
+- **Path** — the intake entry in `{{docs.artifact_types[]}}`. The user may name another path, or none (emit inline only).
+- **Who writes** — the `writer` on that entry. If it is not this session, do not write: emit the document in the reply and name the authorized writer.
 - **Overwrite / retention** — not decided here. If docs or the user state a rule, follow it. If silent, persist only to a new path; do not overwrite an existing file.
-- **Source conventions** — custom severity scales, component naming, issue-type mappings.
+- **Source conventions** — custom severity scales, component naming, issue-type mappings; `{{project.tracker.host}}` and `{{project.tracker.key_prefix}}`, and `project-context/glossary.md` for domain terms.
 
-If no docs are reachable (pure chat context), say so in one line and proceed with the defaults.
+If no project rules are reachable (pure chat context), say so in one line and proceed with the defaults.
 
 ## Step 1 — parse the source
 

@@ -1,0 +1,77 @@
+// Deterministic pipeline template. Host: framework/hosts/claude-code.md § Dispatch primitives.
+// Encodes FI-08: evidence gates, named skips, no green by absence.
+
+export const meta = {
+  name: '{{run.name}}',
+  description: '{{run.description}}',
+  phases: [
+    { title: '{{phase.title}}', detail: '{{phase.detail}}' },
+  ],
+}
+
+// One preamble, every stage. Everything a fresh agent cannot infer goes here.
+const COMMON = `
+PROJECT: {{project.name}} — {{project.description}}. Read CLAUDE.md first, then
+{{conventions.code_level}}.
+
+YOUR BRIEF IS TWO DOCUMENTS — read both before touching anything:
+- {{intake.document}} — the normalized items, each with verified citations. Trust them but
+  re-read the cited code.
+- {{plan.document}} — the approved plan. Read its invariants and your own row.
+
+STANDING HUMAN RULINGS (plan § Invariants) — these bind you regardless of what any item says:
+- {{ruling}}
+- A violation you find in code this plan does not modify is REPORTED, never fixed.
+  Out-of-scope work goes back to planning.
+
+HARD CONSTRAINTS:
+- NEVER commit. NEVER push. Leave your work in the working tree (branch {{run.branch}}).
+- You are a documentation worker: never create, modify or delete a documentation file. The one
+  exception is APPENDING a three-line entry (AFFECTS / CHANGE / SOURCE) to
+  {{docs.worker_channel}}. A summary, notes or handoff file is a task failure even if the code
+  works.
+- Stay inside your ownership area (project-context/ownership.md).
+- Verification runs where {{project.runbook_doc}} says it runs. Know the machine-wide
+  serialization before assuming a slow start is a hang.
+`
+
+const LANDED = `
+REPORT DISCIPLINE: your final answer is data for the orchestrator, not prose for a human. Fill
+the schema exactly. Every file you wrote goes in landedFiles as a repo-relative path — a stage
+claiming success with an empty landedFiles list is a FAILED GATE.
+`
+
+phase('{{phase.title}}')
+
+const result = await agent(`${COMMON}
+TASK {{task.id}} — {{task.title}}
+
+{{task.body}}
+
+ACCEPTANCE: {{task.acceptance}}
+
+EFFORT — {{task.effort}}: {{task.effort_guidance}}
+${LANDED}`, {
+  label: '{{task.id}} {{task.short}}',
+  phase: '{{phase.title}}',
+  agentType: '{{member.name}}',        // a binding name from .claude/agents/
+  model: '{{task.tier}}',              // framework tier → framework/hosts/*.md § Model map
+  effort: '{{task.effort}}',
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    required: ['landedFiles', 'outOfScope'],
+    properties: {
+      landedFiles: { type: 'array', items: { type: 'string' } },
+      outOfScope: { type: 'array', items: { type: 'string' } },
+    },
+  },
+})
+
+// Gate on evidence, never on a stage returning text.
+if (!result || !result.landedFiles?.length) {
+  log('{{task.id}}: FAILED GATE — no landed files. Stopping; a skipped stage must be visible.')
+  return { failed: '{{task.id}}' }
+}
+
+return { result }

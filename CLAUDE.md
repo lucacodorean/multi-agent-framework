@@ -1,104 +1,141 @@
-# CLAUDE.md — OIR Flow
+# CLAUDE.md — multi-agent framework
 
-Multi-tenant CR/CP sampling platform: a Laravel platform and a stateless Python document
-engine, coupled only through `contract/`. Code is the source of truth. This file is the
-index and the law; canonical docs hold the depth.
+This repository develops the **knowledge base**: a project-agnostic multi-agent framework, its
+worked example, and its documentation. It is not a project built with the framework.
 
-## 1. Repository layout
+```
+knowledge-base/          the vendorable unit — copy this into a host repository
+  framework/             the core: roster, rules, roles, contracts, templates, hosts  READ-ONLY
+  project-context/       the instantiation: nine files resolving every placeholder  STUBS
+  docs/                  the project's knowledge, and docs/_intake.md, the doc channel
+  extensions/            additions made without editing the core, and their index
+.claude/agents/          the roster's bindings, one per member, per host
+.claude/skills/          framework-owned skills, mounted where the harness finds them
+prompts/                 the prompts and analyses that produced the current shape
 
-Canonical: `docs/architecture.md`. Owners: ratified roster, ch. 2. Platform ↔ engine seam:
-`docs/document-engine-bridge.md`.
+This repository is the starting point for any further project. A derived project changes
+`project-context/`, `extensions/` and `docs/` — and nothing else.
+```
 
-| path | contents | owner |
+Read `knowledge-base/README.md` first, then
+`knowledge-base/framework/rules/invariants.md` — those invariants are the acceptance criteria
+for every change made here.
+
+## 0. `knowledge-base/framework/**` is READ-ONLY (FI-25)
+
+**Do not create, edit, move or delete any file under `knowledge-base/framework/`.** This binds
+every agent, in every task, including the lead. It is not a preference and it is not waived by
+a task that would be easier if you edited a rule.
+
+A need that does not fit the core is answered in one of three places, in this order:
+
+1. **A value that varies per project** → that project's context. That is what the contract is
+   for (`knowledge-base/framework/contracts/project-context.schema.md`).
+2. **Something the core does not do** → an extension beside the core, never inside it (FI-26):
+   add or narrow, never restate, shadow or override.
+3. **A defect in a rule** → report it and stop. It is a task for whoever maintains the core,
+   not a local fix.
+
+**Do not push a core change.** Every engineer and every vendored copy downstream inherits it,
+so publishing one is a release, not an edit: it is announced to whoever consumes the core.
+
+Deliberate core maintenance, when that is genuinely the task the human gave you:
+
+```
+knowledge-base/framework/bin/lock-core.sh unlock     # then edit
+FRAMEWORK_UNLOCK=1 git commit ...                    # the hook logs what changed
+FRAMEWORK_PUBLISH=1 git push ...                     # only when releasing it
+knowledge-base/framework/bin/lock-core.sh lock       # always leave it locked
+```
+
+The rest of the knowledge base is writable, and is where the work happens:
+
+- `knowledge-base/docs/` — the project's knowledge: conventions, decision records, tracker
+  intake, review reports, stories, business and domain material. Agents read here for
+  information and write here to record it. The directories are in place and mostly empty; a
+  file belongs to a declared kind with a declared path and lifecycle
+  (`knowledge-base/framework/rules/doc-artifact-registry.md`), and summary, notes and handoff
+  files are not a kind (FI-02).
+  - `docs/conventions/engineering-principles.md` and `architecture-principles.md` are the two
+    slots the framework mandates and never fills. Both are stubs today: filling them is project
+    work, and every role charter points at them meanwhile.
+- `knowledge-base/extensions/` — additions to the framework made without editing it, each
+  listed in `knowledge-base/extensions/README.md` (FI-26).
+- `knowledge-base/project-context/` — the nine files that resolve the core's placeholders.
+  Stubs today; filling them is the first task of any project using this framework.
+
+This file is one of the enforcement layers, and the only one every agent reads. The others are
+the filesystem lock, the `pre-commit` and `pre-push` hooks, per-host deny rules, and the
+validator's report. None is absolute against an agent with a shell; editing the core *silently*
+is the violation.
+
+## 1. The other two rules that shape the repository
+
+- **`{{kb.root}}` is `./knowledge-base/`.** That is the anchor, and this line is where an agent
+  resolves it. A mounted skill or any other file outside the unit cites
+  `{{kb.root}}/framework/…`; a file inside the unit cites `framework/…`, knowledge-base-relative
+  (FI-27).
+- **Example material is read-gated and binds nothing (FI-24).** There is none in this
+  repository. Should any be added, it is opened only when the task prompt carries the grant
+  `EXAMPLE-ACCESS:` naming what is needed from it — not to check a convention, not to copy a
+  shape, not to settle an ambiguity in a rule. It never becomes precedent, and the validator
+  does not read it unless told to.
+
+## 1b. The roster and how members talk
+
+The standing roster — who exists, the tier order, each member's mandate — is a framework fact:
+`knowledge-base/framework/roster.md`. Seven members: `contract-owner`, `domain-engineer`,
+`data-engineer`, `platform-engineer`, `engine-engineer`, `code-reviewer`, `docs-agent`. Their
+bindings live at `.claude/agents/` and `.opencode/agents/`, thin by construction; what each owns
+*here* comes from `knowledge-base/project-context/ownership.md`. A new member is added by an
+extension, never by editing the roster (FI-26).
+
+Every need travels through one of seven channels — requirement, constraint, doc impact, review,
+report, checkpoint, escalation — defined once in
+`knowledge-base/framework/rules/agent-communication.md`. There are no others: editing another
+member's files or leaving a note in code is a boundary violation, not communication. The
+doc-impact channel is `knowledge-base/docs/_intake.md`, append-only, drained by the doc writer
+alone.
+
+## 2. Layout and ownership
+
+| path | contents | writable by an agent |
 |---|---|---|
-| `contract/` | OpenAPI 3.1 ×2, AsyncAPI 3.0, `.spectral.yaml` — the only coupling point | contract-owner |
-| `app/` `routes/` `resources/` `public/` `bootstrap/` `tests/` | Laravel platform: domain, two Filament panels, Pest suite — minus data carve-outs (ch. 2) | domain-engineer |
-| `app/Engine/` | engine bridge client (consumer half of the seam) | domain-engineer |
-| `database/` | central + tenant migrations (`migrations/tenant/`), factories, seeders | data-engineer |
-| `app/Tenancy/` + carve-outs | schema-per-tenant mechanism living where Laravel puts it | data-engineer |
-| `config/` | owned per file: `tenancy.php` data; `engine.php` and the rest domain | per file |
-| `engine/` | stateless FastAPI document engine, black-box tests, vendored prototype modules | engine-engineer |
-| `infra/` | runtime-agnostic inputs (`infra/shared/`), per-runtime sources of truth (`infra/ddev/`, `infra/deploy/`), CI gate scripts (`infra/ci/`) — minus the docs carve-out (ch. 2) | platform-engineer |
-| `.ddev/` `.github/` | generated DDEV config; five CI workflows | platform-engineer |
-| `.claude/` `.grok/` | harness directories — one per orchestrating agent (Claude, Grok) | the named agent |
-| `CLAUDE.md` `docs/` `infra/README.md` | active documentation | docs-agent |
-| root tooling | `phpunit.xml` `phpstan.neon` `captainhook.json` dotfiles → platform; `composer.json` `package.json` `vite.config.js` `artisan` → domain | per file |
+| `knowledge-base/framework/` | the core | **no** (FI-25) |
+| `knowledge-base/project-context/` | the instantiation the core consumes | yes |
+| `knowledge-base/docs/` | documentation about the knowledge base | yes |
+| `.claude/agents/`, `.opencode/agents/` | the roster's bindings, rendered from one template | yes — regenerate, never hand-edit one copy |
+| `.claude/skills/` | the four generic skills | yes — framework-owned content at a host mount point |
+| `.claude/settings.json`, `.claude/statusline.sh` | operator configuration, not core | yes |
+| `prompts/` | working material | yes |
 
-## 2. Team roster (ratified 2026-08-11)
+Harness directories belong to the orchestrating agent of that name (FI-21). A harness discovers
+agents and skills only at the repository root, so the unit cannot own those mount points —
+`knowledge-base/framework/hosts/` records where each host looks.
 
-Canonical: this chapter. Every path maps to exactly one owner; git-ignored artifacts
-(`vendor/`, `node_modules/`, `storage/` runtime, `.env`, `engine/.venv`) follow the owner
-of their source manifest. Harness directories (`.claude/**`, `.grok/**`, any future
-`.<agent>/`) belong to the orchestrating agent of that name — outside the roster; no
-member writes them; each agent writes only its own.
+## 3. Changing the framework
 
-| member | owns (writes) | everything else |
-|---|---|---|
-| contract-owner | `contract/**` | readonly |
-| domain-engineer | `app/**` `routes/**` `resources/**` `public/**` `bootstrap/**` `tests/**` minus data carve-outs · `config/**` minus `tenancy.php` · `composer.json` `composer.lock` `package.json` `vite.config.js` `artisan` | readonly |
-| data-engineer | `database/**` · `config/tenancy.php` · carve-outs: `app/Tenancy/**`, `app/Models/{Tenant,TenantLifecycleEvent,TenantMetricSnapshot}.php`, `app/Enums/TenantStatus.php`, `app/Providers/TenancyServiceProvider.php`, `app/Console/Commands/Tenants*.php`, `app/Http/Middleware/EnsureTenantIsAccessible.php`, `app/RiskRegister/Storage/**`, `tests/Feature/Tenancy/**`, `tests/Fixtures/tenant-migrations-broken/**` | readonly |
-| engine-engineer | `engine/**` | readonly |
-| platform-engineer | `infra/**` minus the carve-out `infra/README.md` · `.ddev/**` · `.github/**` · `phpunit.xml` `phpstan.neon` `captainhook.json` `.editorconfig` `.env.example` `.gitattributes` `.gitignore` `.npmrc` | readonly |
-| docs-agent | `docs/**` per governance whitelist · carve-out: `infra/README.md`; `CLAUDE.md` only on explicit human instruction | readonly |
-
-Tier order: contract-owner → domain-engineer → data-engineer → platform-engineer.
-engine-engineer is a provider bounded context beside the tiers, reached only through
-`contract/engine.openapi.yaml` (`.claude/agents/engine-engineer.md`).
-
-## 3. Rules of engagement (non-negotiable)
-
-Canonical: `docs/conventions/rules-of-engagement.md`. Code-level discipline:
-`docs/conventions/engineering-principles.md`. Structural discipline:
-`docs/conventions/architecture-principles.md`.
-
-- Contract-first across members: no cross-member dependency without an agreed contract
-  (interface, schema, or API definition) before implementation.
-- Tier direction holds between members.
-- Cross-tier work coordinates via tasks/messages through the contract-owner — never by
-  directly editing another member's files.
+- Add a rule in exactly one file and point at it from everywhere it binds (FI-01).
+- A new placeholder is added to the contract in the same change that first consumes it.
+- A role charter gains a duty only if that duty holds for every project. Otherwise it belongs
+  in a member record — `knowledge-base/framework/templates/project-context/ownership.md`.
+- A harness name appears only under `knowledge-base/framework/hosts/`.
+- Run `knowledge-base/framework/bin/validate-context.sh` before reporting done. Validate an
+  example only by naming its context directory.
 
 ## 4. Working agreement
 
-Canonical: `docs/conventions/working-agreement.md`.
+`knowledge-base/framework/rules/working-agreement.md` binds work here too:
 
-- Members are fully autonomous within their task.
-- Never push to git.
-- Commit only on explicit request.
+- Never push. Commit only on explicit request. A core change is never pushed as part of
+  other work (§ 0).
 - Destructive operations require an explicit user-approved task.
+- Report outcomes faithfully — failures as failures, with output; skipped steps named as
+  skipped.
 
-## 5. Orchestration model
+## 5. Instantiating a project
 
-Canonical: `docs/conventions/orchestration.md`.
-
-- Route most build work through the roster.
-- Use the `Workflow` tool for deterministic multi-member orchestration.
-- Track cross-member work as tasks/messages.
-- Use worktree isolation when members mutate files in parallel within the same tier.
-- Model & effort are assigned at dispatch time, not in agent definitions.
-- The lead integrates results, verifies against contract, and reports to the user.
-
-## 6. Environment & commands
-
-Canonical: `docs/runbook.md` — every command, per runtime, with its verification status.
-This file names no command; read them there.
-
-- Runtime contents and ports: local `docs/topology/local.md`, preview
-  `docs/topology/preview.md`. CI host: `docs/ci/gitlab.md`.
-- Host needs Docker plus the CLI of the runtime being used; every tool runs in a container.
-- Gate set and its rules: `docs/architecture.md` § CI — gates.
-- Gate serialization on a machine: `docs/runbook.md` § CI gates.
-- Verify a topology change by a full boot of that runtime, never a restart.
-
-## 7. Documentation governance
-
-Canonical: `docs/conventions/documentation-governance.md`.
-
-@docs/conventions/documentation-governance.md
-
-- Every agent is a worker by default; workers never write `.md` — their only channel is
-  appending to `docs/_intake.md`.
-- The docs-agent is the sole doc writer, inside the whitelist that governance holds
-  (§ Allowed write paths — the only copy); `CLAUDE.md` only on explicit human
-  instruction.
-- `docs/stories/as-reference/` is read-forbidden without a `HISTORY-ACCESS:` grant in the
-  task prompt, and writable by no one (`docs/stories/README.md`).
+`knowledge-base/README.md` § Vendoring into a host repository, then
+`knowledge-base/framework/README.md` § Initializing a project. Instantiation writes the
+project's context, its bindings, its index-and-law file and its convention files — never
+anything under `knowledge-base/framework/`.
