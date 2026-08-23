@@ -1,6 +1,12 @@
 # Dispatch templates
 
-Three formats: the agent dispatch prompt, the workflow runner, and the run manifest.
+Four formats: the agent dispatch prompt, the deterministic task checklist, the pipeline script,
+and the run manifest.
+
+A checklist and a pipeline script are not the same thing. A checklist is one task whose steps are
+mechanical — no agent judgment mid-flight. A pipeline script is several members whose order and
+gates were known before dispatch (`{{kb.root}}/framework/rules/orchestration.md` § Deterministic
+pipelines).
 
 ## 1. Agent dispatch prompt (agent-route tasks)
 
@@ -32,7 +38,7 @@ One block per task. **Self-contained is the whole point**: the receiving agent h
 When done, report: status (pass/fail per acceptance criterion), files changed, anything discovered that is out of scope (report it — do not do it).
 ```
 
-## 2. Workflow runner (workflow-route tasks)
+## 2. Deterministic task checklist (workflow-route tasks)
 
 Deterministic tasks execute as a strict checklist — no agent judgment mid-flight. Execute in order; verify each step's expected result before the next.
 
@@ -49,7 +55,31 @@ Post-conditions: [what must be true after all steps — verified explicitly at t
 
 If any step's "expected result" can't be stated mechanically, the task was misclassified — stop, re-route it as agent-route, and flag the change in the manifest.
 
-## 3. Run manifest
+## 3. Pipeline script (several members, order known before dispatch)
+
+Canonical shape: `{{kb.root}}/framework/templates/workflow-script.js.template`. Read it and fill
+it — the shape is not restated here, because one shape in two files is one of them going stale
+(FI-01). Emit it only on a host whose adapter names a pipeline primitive
+(`{{kb.root}}/framework/hosts/<host>.md` § Dispatch primitives); where none is named, fall back to
+waves of agent dispatches and say so in the manifest.
+
+What you fill, and from where:
+
+| in the template | from |
+|---|---|
+| `run.name`, `run.branch`, `run.description` | the approved plan and the branch this run works on |
+| `phase.title`, `phase.detail` | one entry per wave, titles matching the `phase()` calls |
+| `task.id`, `task.title`, `task.short`, `task.body`, `task.acceptance` | the task's row and dispatch block |
+| `task.tier`, `task.effort`, `task.effort_guidance` | the approved routing — framework tier names, never a host model id (FI-09) |
+| `member.name` | the owning member's binding name, from `project-context/ownership.md` |
+| `plan.document`, `intake.document` | the paths the plan and the intake document were written to |
+| `ruling` | a boundary-owner ruling this run must respect, or drop the line |
+| `project.name`, `project.description`, `conventions.code_level`, `docs.worker_channel` | the project's context |
+
+Leaving one of these standing in an emitted script is a failed dispatch, not a placeholder: the
+agent reading it has no way to resolve it.
+
+## 4. Run manifest
 
 The live state of a dispatch. Create it when dispatch starts; update it as results land; it is the close-out artifact.
 

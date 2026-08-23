@@ -125,7 +125,7 @@ ALWAYS use this template (omit sections that are genuinely empty, keep the order
 - **Rich, detailed input** (formal spec, RFP): extract comprehensively; the deliverable may be long. Keep the traceability matrix — it's most valuable here.
 - **Sparse input** (a two-line feature idea): produce the few stories the input supports, mark the rest of the structure with explicit gaps, and lead with open questions. Do not inflate two lines into a fictional 20-story backlog. Offer to expand once questions are answered.
 - **Conversational input** (meeting notes, transcripts): requirements will be scattered and contradictory. Resolve contradictions by recency when the input shows a decision superseding an earlier one; otherwise flag the contradiction as an open question.
-- **Input in another language**: assess in `{{project.input_language}}`, write the deliverable in `{{project.docs_language}}`, and keep acceptance criteria in the input's language (`{{kb.root}}/framework/rules/documentation-governance.md`). Keep domain terms from the source where translation would lose precision — `project-context/glossary.md` holds them.
+- **Input in another language**: assess in `project.input_language`, write the deliverable in `project.docs_language`, and keep acceptance criteria in the input's language (`{{kb.root}}/framework/rules/documentation-governance.md`). Keep domain terms from the source where translation would lose precision — `project-context/glossary.md` holds them.
 ## Interaction notes
 
 - If the user answers open questions in a follow-up, update the deliverable in place: convert answered Q-items into stories/criteria/assumptions, keep IDs stable, and append new IDs rather than renumbering.

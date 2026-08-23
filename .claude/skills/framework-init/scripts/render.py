@@ -17,6 +17,12 @@ answers.json:
     "artifact_types": [{"type","path","writer","authorization","lifecycle","budget"}],
     "write_paths":    [{"path","budget"}],
     "glossary":       [{"term","language","meaning"}],
+    "gates":          [{"name","proves","command","serialized"}],
+    "runtimes":       [{"id","doc","boot","verify"}],
+    "destructive":    ["operation needing an approved task", ...],
+    "enforcement":    [{"convention","by"}],
+    "outside_roster": [{"path","why"}],
+    "read_gated":     [{"path","grant"}],
     "hosts":          ["claude-code", ...]        # omit to use every non-optional host
   }
 """
@@ -71,6 +77,43 @@ def fill_rows(text: str, values: dict, source: str):
             REPORT["unresolved"].append(f"{source}: {key}")
         return m.group(0)
     return re.sub(r"^\| `([a-z_][a-z0-9_.]*)` \|([^|]*)\|", sub, text, flags=re.M)
+
+
+def fill_bullets(text: str, values: dict, source: str):
+    """Replace the value of any '- `key`: <prompt>' bullet whose key was answered.
+
+    A scalar does not always live in a table: runtimes.md states two of its keys as bullets, and
+    fill_rows only reads table rows.
+    """
+    def sub(m):
+        key = m.group(1)
+        if key in values:
+            REPORT["filled"].append(f"{source}: {key}")
+            return f"- `{key}`: {values[key]}"
+        if "<" in m.group(2):
+            REPORT["unresolved"].append(f"{source}: {key}")
+        return m.group(0)
+    return re.sub(r"^- `([a-z_][a-z0-9_.]*)`: (.*)$", sub, text, flags=re.M)
+
+
+def render_bullets(text: str, items, source: str, section: str):
+    """Replace a '- <prompt>' line with one bullet per item, inside the named section."""
+    if not items:
+        return text
+    parts = re.split(r"(?m)^(?=## )", text)
+    for i, part in enumerate(parts):
+        if part.startswith(f"## {section}"):
+            lines = part.splitlines()
+            for j, ln in enumerate(lines):
+                if re.match(r"^- `?<[^<>]*>`?$", ln.strip()):
+                    lines[j:j + 1] = [f"- {it}" for it in items]
+                    REPORT["filled"].append(f"{source}: {len(items)} bullet(s)")
+                    parts[i] = "\n".join(lines) + "\n"
+                    return "".join(parts)
+            note(f"{source}: no bullet prompt in '## {section}'; items not inserted")
+            return text
+    note(f"{source}: no '## {section}' section found; items not inserted")
+    return text
 
 
 def render_table(text: str, header_cells: int, rows, source: str, section: str = None):
@@ -129,8 +172,32 @@ def main():
         if target.is_file() and "<" not in target.read_text():
             REPORT["skipped"].append(f"{target.relative_to(repo)}: already filled, left alone")
             continue
-        text = fill_rows(form.read_text(), values, form.name)
+        text = fill_bullets(fill_rows(form.read_text(), values, form.name), values, form.name)
+        if form.name == "ci.md":
+            text = render_table(text, 4, [
+                "| {} | {} | `{}` | {} |".format(g["name"], g.get("proves", "—"),
+                                                 g.get("command", "—"), g.get("serialized", "no"))
+                for g in ans.get("gates", [])], "ci gates")
+        if form.name == "runtimes.md":
+            text = render_table(text, 4, [
+                "| {} | {} | `{}` | {} |".format(r["id"], r.get("doc", "—"),
+                                                 r.get("boot", "—"), r.get("verify", "—"))
+                for r in ans.get("runtimes", [])], "runtimes")
+        if form.name == "commands.md":
+            text = render_bullets(text, ans.get("destructive", []), "destructive operations",
+                                  "Destructive")
+        if form.name == "conventions.md":
+            text = render_table(text, 2, [f"| {e['convention']} | {e.get('by', 'nothing')} |"
+                                          for e in ans.get("enforcement", [])], "enforcement",
+                                section="Enforcement")
+        if form.name == "ownership.md":
+            text = render_table(text, 2, [f"| `{o['path']}` | {o.get('why', '—')} |"
+                                          for o in ans.get("outside_roster", [])],
+                                "outside the roster", section="Outside the roster")
         if form.name == "docs-policy.md":
+            text = render_table(text, 2, [f"| `{r['path']}` | {r['grant']} |"
+                                          for r in ans.get("read_gated", [])], "read-gated paths",
+                                section="Read-gated paths")
             text = render_table(text, 2, [f"| `{w['path']}` | {w.get('budget','none')} |"
                                           for w in ans.get("write_paths", [])], "write paths",
                                 section="Allowed write paths")
@@ -144,6 +211,16 @@ def main():
             text = render_table(text, 3, [f"| {g['term']} | {g.get('language','en')} | {g['meaning']} |"
                                           for g in ans.get("glossary", [])], "glossary")
         write(target, text)
+
+    # 1b. sub-scaffolds inside the forms directory — the architecture directory is a directory
+    # by design (project.architecture_dir), so it is copied whole rather than filled row-wise.
+    for sub in sorted(d for d in forms.iterdir() if d.is_dir()):
+        for form in sorted(sub.glob("*.md")):
+            target = ctx / sub.name / form.name
+            if target.is_file() and "<" not in target.read_text():
+                REPORT["skipped"].append(f"{target.relative_to(repo)}: already filled, left alone")
+                continue
+            write(target, fill_rows(form.read_text(), values, f"{sub.name}/{form.name}"))
 
     # 2. per-member ownership, appended to the roster form's table where answers exist
     members = roster_members(fw)
@@ -184,6 +261,7 @@ def main():
                 continue
             b = tpl
             for k, v in {
+                "kb.root": values.get("kb.root", f"{kb.name}/"),
                 "member.name": m["name"], "member.role": m["role"],
                 "member.role_summary": r.get("description", m["mandate"]),
                 "member.owns_summary": r.get("owns", "the paths its member record names"),
@@ -223,7 +301,14 @@ def main():
         text = idx.read_text()
         for k, v in values.items():
             text = text.replace("{{%s}}" % k, str(v))
-        left = sorted(set(re.findall(r"\{\{([a-z_][a-z0-9_.]*)\}\}", text)))
+        # A placeholder the context never supplies is left standing by design: the contract's
+        # § Placeholders the context does not supply names the renderer and orchestrator classes.
+        NOT_OURS_PREFIX = ("run.", "task.", "phase.", "plan.", "intake.")
+        NOT_OURS = {"ruling", "member.reached_through", "member.role_summary",
+                    "member.use_when", "member.position_sentence", "member.owns_summary",
+                    "member.not_owns_summary"}
+        left = sorted(k for k in set(re.findall(r"\{\{([a-z_][a-z0-9_.]*)\}\}", text))
+                      if not k.startswith(NOT_OURS_PREFIX) and k not in NOT_OURS)
         if left:
             REPORT["unresolved"] += [f"index file: {k}" for k in left]
         write(repo / "CLAUDE.md", text)

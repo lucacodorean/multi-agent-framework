@@ -16,7 +16,7 @@ wins.** Every step below exists to enforce that.
 ## Scope
  
 Operate on documentation loaded or referenced during development: the paths in
-`{{docs.write_paths[]}}`, plus the project's index-and-law file, READMEs and agent
+`docs.write_paths`, plus the project's index-and-law file, READMEs and agent
 instruction files. Exclude source code, generated artifacts, and third-party docs.
 Framework-core files (`{{kb.root}}/framework/**`) are out of scope: they are compacted by their
 maintainers, not per project.
@@ -32,9 +32,9 @@ only thing that catches semantic loss introduced in step 3.
 ### 1. Inventory
  
 List every documentation file with an approximate token count and a one-line
-purpose. The metric of record is `{{docs.metric}}` — use no other, and read the
+purpose. The metric of record is `docs.metric` — use no other, and read the
 project's own note there before substituting a cheaper estimate. Budgets in
-`{{docs.write_paths[]}}` are enforced against that metric. Flag duplicates, stale
+`docs.write_paths` are enforced against that metric. Flag duplicates, stale
 files, and overlapping content. Present the inventory and the proposed scope before editing
 anything — the user may know that some file is load-bearing for tooling or CI.
  
@@ -76,7 +76,7 @@ Apply these transformations:
   reference. A broken doc link in CI or an agent config is a regression.
 ### 4. Safety
  
-- Move all removed content to `{{docs.archive_dir}}` (or an equivalent the user names).
+- Move all removed content to `docs.archive_dir` (or an equivalent the user names).
   Never hard-delete — compaction should be reversible.
 - If two rules conflict, do not resolve the conflict silently, even when one
   side looks obviously newer or better. Keep both, mark with `CONFLICT:`, and

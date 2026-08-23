@@ -33,7 +33,7 @@ of them already answers:
 
 | read | to learn |
 |---|---|
-| `framework/contracts/project-context.schema.md` | every key a context must supply, its shape, and which core file consumes it |
+| `framework/contracts/project-context.schema.md` | every key a context must supply, its shape, and which core file consumes it — plus § Placeholders the context does not supply, which you fill none of |
 | `framework/templates/project-context/` | the context file set — one blank form per file, and the forms you will fill |
 | `framework/roster.md` | who exists, the tier order, each member's mandate |
 | `framework/rules/doc-artifact-registry.md` § Standard kinds | the documentation kinds, their suggested paths and lifecycles |
@@ -67,6 +67,12 @@ the evidence for it. Never a bare "what conventions do you use?" — that invite
 "three of these directories look like separate deployables; should each be a member's ownership
 area, or is this one tier?" and say what you would pick.
 
+`detect.py` reports runtimes and gates by presence only — what they contain is topology, and it
+does not guess. So six groups reach the proposal only if you ask for them, and each is a table or
+list the validator now reports as an unfilled prompt until it is filled: the CI gates, the
+runtimes, the destructive operations, the convention-to-enforcement map, the paths outside the
+roster, and any read-gated path. `scripts/render.py`'s docstring is the authority on their shape.
+
 Ask the decisions in one batch, not one at a time. A person answering ten questions in one pass
 holds the whole shape in mind; the same ten questions spread over ten turns get inconsistent
 answers.
@@ -83,9 +89,14 @@ say so. Half-instantiated and honest beats fully-instantiated and invented.
 
 ## Step 3 — APPLY
 
-Run `scripts/render.py` with the approved answers. It writes:
+Run `scripts/render.py` with the approved answers — its docstring declares every key the
+answers file may carry, and a group you leave out stays the form's own prompt rather than
+becoming an invented value. It writes:
 
 - the context files, from the blank forms, with every approved value in place;
+- `project-context/architecture/`, copied from its forms — a directory because on a real
+  codebase the architecture is never one document. Its index and per-area files are project
+  work, not something init can derive: it ships the scaffold and the rows stay `<placeholders>`;
 - one binding per roster member per host, from the binding template and that host's frontmatter;
 - the documentation directories the approved kinds need, and the intake channel;
 - the repository's index-and-law file, from its template, including the anchor and the core
@@ -117,6 +128,11 @@ moment to ask instead.
   better than a plausible fiction. Do not invent a data tier to fill a row.
 - **The blank forms are the schema.** Do not hand-write a context file from memory of what the
   fields are; copy the form and fill it, so a field added to the framework appears here too.
+- **Not every placeholder is yours to fill.** The contract's § Placeholders the context does not
+  supply lists the ones a binding renderer or an orchestrator resolves — `member.owns_summary`
+  and its siblings, `run`, `task`, `phase`, `plan.document`,
+  `intake.document`, `ruling`. Leave them standing. One of those in a file you wrote is
+  correct output, not an unfinished instantiation, and it is not reported as unresolved.
 - **Never touch the core.** `framework/**` is read-only, enforced (FI-25). If initializing seems
   to need a core change, the change is wrong or the core is — say which, and stop.
 

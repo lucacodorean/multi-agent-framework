@@ -61,7 +61,8 @@ Given an approved task list, execute it.
 1. **Re-read the orchestration docs** (Step 0). Dispatch mechanics — wave gating, report formats, worktree/branch conventions — come from there first.
 
 2. **Route each task:**
-    - **workflow route (deterministic):** Execute the steps exactly, in order, verifying the expected result after each step (see the workflow runner template in `references/dispatch-templates.md`). No improvisation: if a "deterministic" task turns out to need judgment mid-flight, stop it, re-classify it as agent-route, and flag the change rather than silently winging it.
+    - **workflow route (deterministic):** Execute the steps exactly, in order, verifying the expected result after each step (see the deterministic task checklist in `references/dispatch-templates.md`). No improvisation: if a "deterministic" task turns out to need judgment mid-flight, stop it, re-classify it as agent-route, and flag the change rather than silently winging it.
+    - **pipeline route (several members, order and gates known before dispatch):** Emit the pipeline script from `{{kb.root}}/framework/templates/workflow-script.js.template` — § 3 of `references/dispatch-templates.md` says which placeholders you fill and from where. Only on a host whose adapter names a pipeline primitive; otherwise dispatch in waves and record the fallback in the manifest.
     - **agent route:** Dispatch to agents with the task's assigned model and effort, resolved through `references/routing-defaults.md` → **Dispatch host adapter**. Spawn per wave, one agent per task, respecting the parallelism limit and any role model from the docs. Always expand Effort guidance in the prompt. If the host rejects the native field, mark the forfeit in the manifest. If no subagent tooling exists, emit **dispatch-ready prompt blocks** from `references/dispatch-templates.md`.
 
 3. **Maintain the run manifest** (template in `references/dispatch-templates.md`): per-task status (`pending / dispatched / done / failed / re-routed`), updated as results land. In a file-capable environment, keep it as a file next to the plan.
@@ -78,4 +79,4 @@ Given an approved task list, execute it.
 
 - `references/routing-defaults.md` — model tiers, effort, dispatch host adapter (Claude vs Grok), escalation. Read before assigning or filling routing.
 - `references/plan-template.md` — the exact plan output format. Read before emitting a plan.
-- `references/dispatch-templates.md` — agent dispatch prompt, workflow runner, run manifest formats. Read before dispatching.
+- `references/dispatch-templates.md` — agent dispatch prompt, deterministic task checklist, pipeline script, run manifest formats. Read before dispatching.

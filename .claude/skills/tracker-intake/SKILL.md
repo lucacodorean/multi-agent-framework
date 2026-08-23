@@ -28,10 +28,10 @@ Consequences, all non-negotiable:
 
 Project rules override skill defaults. Read `{{kb.root}}/framework/rules/documentation-governance.md`, `{{kb.root}}/framework/rules/doc-artifact-registry.md` and `project-context/docs-policy.md`, then check:
 
-- **Path** — the intake entry in `{{docs.artifact_types[]}}`. The user may name another path, or none (emit inline only).
+- **Path** — the intake entry in `docs.artifact_types`. The user may name another path, or none (emit inline only).
 - **Who writes** — the `writer` on that entry. If it is not this session, do not write: emit the document in the reply and name the authorized writer.
 - **Overwrite / retention** — not decided here. If docs or the user state a rule, follow it. If silent, persist only to a new path; do not overwrite an existing file.
-- **Source conventions** — custom severity scales, component naming, issue-type mappings; `{{project.tracker.host}}` and `{{project.tracker.key_prefix}}`, and `project-context/glossary.md` for domain terms.
+- **Source conventions** — custom severity scales, component naming, issue-type mappings; `project.tracker.host` and `project.tracker.key_prefix`, and `project-context/glossary.md` for domain terms.
 
 If no project rules are reachable (pure chat context), say so in one line and proceed with the defaults.
 
