@@ -1,36 +1,24 @@
 # Commands
 
-Keys are fixed; values are this project's. Verified by execution 2026-08-22 unless marked
-UNVERIFIED. Paths are knowledge-base-relative (FI-27); run them from the repository root with
-the `knowledge-base/` prefix.
+Contract: `framework/contracts/project-context.schema.md` § commands.md. Keys are fixed; values
+are the project's. Mark any value not verified by execution as UNVERIFIED.
 
 | key | command |
 |---|---|
-| `commands.runner_prefix` | none — commands run on the host; there is no container |
-| `commands.dependency_install` | none — the unit has no dependencies. The opencode harness carries its own (`npm install --prefix .opencode`, UNVERIFIED) |
-| `commands.env_up` | none — nothing to start |
-| `commands.env_full_boot` | none — there is no runtime to boot |
-| `commands.test` | `knowledge-base/framework/bin/validate-context.sh` |
-| `commands.test_narrow` | `knowledge-base/framework/bin/validate-context.sh <context-dir>` |
-| `commands.style_check` | none |
-| `commands.static_analysis` | `bash -n knowledge-base/framework/bin/*.sh` and `sh -n knowledge-base/framework/bin/githooks/*` |
-| `commands.contract_lint` | none |
-| `commands.db_shell` | none |
-| `commands.cache_shell` | none |
-
-## Core protection
-
-Not verification commands — the enforcement layers of FI-25. State:
-`knowledge-base/framework/bin/lock-core.sh` (`status` / `lock` / `unlock`).
+| `commands.runner_prefix` | <how a command reaches the execution environment; empty if bare> |
+| `commands.dependency_install` | <install declared dependencies> |
+| `commands.env_up` | <bring the default runtime up, or `none`> |
+| `commands.env_full_boot` | <the full-boot verification a topology change requires, or `none`> |
+| `commands.test` | <run the whole suite> |
+| `commands.test_narrow` | <run one target> |
+| `commands.style_check` | <or `none`> |
+| `commands.static_analysis` | <or `none`> |
+| `commands.contract_lint` | <or `none`> |
+| `commands.db_shell` | <or `none`> |
+| `commands.cache_shell` | <or `none`> |
 
 ## Destructive — explicit user-approved task required
 
 `commands.destructive`:
 
-- Unlocking the core and editing `framework/**`. A human act: `lock-core.sh unlock` lifts the
-  filesystem bit, and the host `deny` rule still refuses the write, by design.
-- `git push` — refused by the pre-push hook unless `FRAMEWORK_PUBLISH=1` says the release of a
-  core change is intended.
-- Rewriting history on a branch that has been pushed.
-- Deleting anything under `docs/` or `project-context/`: both are sole records of work, not
-  regenerable artifacts.
+- <operation>
