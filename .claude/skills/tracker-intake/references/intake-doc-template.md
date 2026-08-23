@@ -1,6 +1,6 @@
 # Intake document template
 
-Emit intake documents in exactly this structure. The persist path, its writer and its lifecycle come from the intake entry in `{{docs.artifact_types[]}}` via SKILL.md Step 0, not from this template; `<scope>` in that pattern is the sprint, filter or team — short, kebab-case.
+Emit intake documents in exactly this structure. The persist path, its writer and its lifecycle come from the intake entry in `docs.artifact_types` via SKILL.md Step 0, not from this template; `<scope>` in that pattern is the sprint, filter or team — short, kebab-case.
 
 ```markdown
 > **Directive to task-orchestrator:** This is a normalized intake backlog, **not an approved plan**.

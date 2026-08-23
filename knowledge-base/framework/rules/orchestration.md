@@ -15,22 +15,22 @@ spellings: `framework/hosts/`.
 - Several members, shape known before dispatch → a deterministic pipeline (FI-08).
 - The lead integrates, verifies against the published interface version, and reports. A
   member's report is input to verification, never a substitute for it.
-- Every run ends with a doc checkpoint dispatched to `{{docs.sole_writer}}` (FI-02).
+- Every run ends with a doc checkpoint dispatched to `docs.sole_writer` (FI-02).
 - Which channel any need travels through — requirement, constraint, doc impact, review, report,
   checkpoint, escalation — is `rules/agent-communication.md`. There are no others.
 
 ## Tiers and direction
 
-`{{roster.tiers[]}}` in order, highest first. `{{roster.side_contexts[]}}` sit beside the
+`roster.tiers` in order, highest first. `roster.side_contexts` sit beside the
 tiers, each reached only through its `reached_through` interface.
-`{{roster.outside_order[]}}` stand outside the order entirely.
+`roster.outside_order` stand outside the order entirely.
 
 - FI-06 governs direction. A constraint that blocks a higher tier is raised as a task to the
   boundary owner, who arbitrates; a ruling worth keeping becomes a decision record.
 
 ## Contract-first sequence
 
-1. The boundary owner changes the interface and lints it (`{{commands.contract_lint}}`).
+1. The boundary owner changes the interface and lints it (`commands.contract_lint`).
 2. The boundary owner opens one scoped task per affected member, each citing the published
    interface version.
 3. Members build to that version. Defects return as tasks; an implementation never diverges
@@ -48,7 +48,7 @@ tiers, each reached only through its `reached_through` interface.
   serialize instead when they would touch the same paths.
 - The four rules that make a pipeline trustworthy are FI-08. Gate on an explicit landed-files
   block; a stage claiming success with an empty list is a failed gate.
-- Serialization that binds the machine (`{{ci.lock}}`, single-suite locks) binds pipeline
+- Serialization that binds the machine (`ci.lock`, single-suite locks) binds pipeline
   stages too. Know it before parallelizing.
 
 ## Dispatch mechanics

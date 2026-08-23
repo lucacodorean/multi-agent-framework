@@ -14,13 +14,13 @@ Framework rule. The boundary mechanics between members. Project values:
 ## Boundary mechanics
 
 - Publish before building: every cross-member interface — path, payload, event, error shape —
-  exists in `{{conventions.boundary.interface_paths[]}}` before implementation, described in
-  `{{conventions.boundary.formats[]}}`.
-- Version the interface, not the file: `{{conventions.boundary.versioning}}`. A prose-only
+  exists in `conventions.boundary.interface_paths` before implementation, described in
+  `conventions.boundary.formats`.
+- Version the interface, not the file: `conventions.boundary.versioning`. A prose-only
   correction leaves the version unchanged, so consumer pins do not move for a change no
   consumer can see.
-- One error model on every boundary: `{{conventions.boundary.error_model}}`, enforced by
-  `{{stack.tooling.contract_lint}}`.
+- One error model on every boundary: `conventions.boundary.error_model`, enforced by
+  `stack.tooling.contract_lint`.
 - Ownership follows behaviour, not location (FI-05). A mechanism living inside another
   member's directory tree is carved out to the member that owns the mechanism; the carve-out
   list is part of the member record, never inferred.
@@ -31,11 +31,11 @@ Framework rule. The boundary mechanics between members. Project values:
   code calls the port, never the adapter. The binding between them lives in the composition
   root, and the concrete adapter is named nowhere else.
 - Enforcement is claimed only where it exists (FI-22). Per convention:
-  `{{conventions.enforcement}}`.
+  `conventions.enforcement`.
 
 ## Provider bounded contexts
 
-A `{{roster.side_contexts[]}}` member is not a tier of the system. For each:
+A `roster.side_contexts` member is not a tier of the system. For each:
 
 - It is reached only through its `reached_through` interface; no other path in exists.
 - It implements only what that interface publishes. A generated schema is not the interface;

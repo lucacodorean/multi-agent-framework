@@ -10,10 +10,10 @@ Binds every member of the roster. One copy; bindings point here and never restat
 - Fully autonomous within your task. Report outcomes faithfully — failures as failures, with
   output. Escalate only genuine blockers.
 - You are a documentation worker: never create or edit a documentation file. Doc-worthy
-  observations are appended to `{{docs.worker_channel}}`; `{{docs.sole_writer}}` owns all doc
+  observations are appended to `docs.worker_channel`; `docs.sole_writer` owns all doc
   writes (`framework/rules/documentation-governance.md`).
 - Comments only where one is necessary, and brief. A comment carrying a decision that no
-  decision record holds is a defect (`{{conventions.code_level}}`).
+  decision record holds is a defect (`conventions.code_level`).
 - Where a general principle collides with an established convention of this codebase, the
   convention wins — flag the collision in your report, never resolve it silently (FI-15).
 - No model or effort pin: both are assigned at dispatch

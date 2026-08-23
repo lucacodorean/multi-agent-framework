@@ -139,3 +139,26 @@ agents and skills only at the repository root, so the unit cannot own those moun
 `knowledge-base/framework/README.md` § Initializing a project. Instantiation writes the
 project's context, its bindings, its index-and-law file and its convention files — never
 anything under `knowledge-base/framework/`.
+
+### What replicates, and what stays here
+
+This repository is the distribution and is **not worked by the roster** — the agents run in the
+projects it seeds. So every file here is judged by what it looks like once copied, and the copy
+is larger than the unit: the skills are core content that lives outside `knowledge-base/`,
+because a harness discovers them only at the repository root.
+
+| replicates | how |
+|---|---|
+| `knowledge-base/framework/**` | verbatim; replaced whole on an update, never diverged locally |
+| `.claude/skills/**` and each host's equivalent | verbatim, to that host's mount point (`framework/hosts/`) |
+| `knowledge-base/project-context/**` | as the stub forms, filled by `framework-init` against the host codebase — never carrying values from here |
+| `knowledge-base/docs/**`, `knowledge-base/extensions/` | as the scaffold and the empty index |
+| `.claude/agents/**`, `.opencode/agents/**` | not copied — re-rendered per host by instantiation |
+| `.claude/settings.json` | verbatim. It holds only what the framework requires of this host — the core `permissions.deny` layer of FI-25, and the flag that makes named teammates available (`framework/hosts/claude-code.md`) |
+
+| stays here | why |
+|---|---|
+| `CLAUDE.md` — this file | the host's index-and-law file is rendered from `framework/templates/CLAUDE.md.template`. Copy this one and a host's agents are told they maintain a framework |
+| `prompts/**` | this repository's own working material |
+| `.claude/statusline.sh` | operator configuration |
+| any permission posture, model, effort, theme or TUI setting | *"An adapter grants no permission posture. Whether an agent runs unattended is a project and operator decision"* (`framework/contracts/host-adapter.schema.md`). Keep these in the user-level `~/.claude/settings.json`, where they cannot replicate; a model or effort pin would also break FI-09 |

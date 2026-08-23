@@ -1,10 +1,6 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions",
-    "deny": [
-      "Edit(knowledge-base/framework/**)",
-      "Write(knowledge-base/framework/**)"
-    ]
+    "defaultMode": "bypassPermissions"
   },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"

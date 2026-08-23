@@ -7,6 +7,31 @@ a project fact stated in a core file instead of here is a core defect. Both are 
 
 Notation: `{{a.b}}` scalar · `{{a.b[]}}` list · `{{a.b[].c}}` field of each list entry.
 
+## Three notations, one meaning each
+
+Confusing them is the defect this section exists to prevent, and `framework/bin/validate-context.sh`
+check 10 enforces it.
+
+| written | means | filled by | may appear in |
+|---|---|---|---|
+| `{{…}}` | a hole | a renderer or an orchestrator, by substitution | this contract, where keys are declared, and the rendered templates sitting directly in `framework/templates/` — the forms in its subdirectories are filled by typing, so they carry none |
+| `<…>` | an unfilled value | a human or `framework-init`, by typing over it | a blank form, and the instantiation copied from it |
+| `` `a.b` `` or `` `path` `` | a citation | nobody — it is a pointer | anywhere |
+
+`{{a.b}}` and `<…>` are the same hole from opposite sides of the read-only boundary: the core
+states the demand, the form supplies it, and the tables below are the join.
+
+Two tests decide which to write. **Is the file rendered?** If nothing substitutes into it — a
+rule, a role charter, a mounted skill — then a `{{a.b}}` in it can only ever be a name, so write
+the citation. **Would pasting the value in read correctly?** A key naming a table or a list does
+not: "the entry for this file in `docs.write_paths`" is a citation even inside a rendered
+template.
+
+One exception, and only one: **`{{kb.root}}`** stays a placeholder wherever it appears. It is the
+anchor (FI-27), resolved by the agent reading the line rather than by a renderer, and it is the
+one key a file cannot cite as a path — not knowing that path is the reason the anchor exists. The
+braces are the signal that it is not a literal.
+
 ## `project-context/project.md` — identity
 
 | placeholder | shape | consumed by |
@@ -114,6 +139,23 @@ Keys are fixed; values are the project's. Every value runs where the project say
 | `{{conventions.boundary.error_model}}` | the error shape every boundary answers with | `boundary-owner` role |
 | `{{conventions.boundary.versioning}}` | where and how the interface version is stated | `boundary-owner`, `rules-of-engagement` |
 | `{{conventions.enforcement}}` | per convention: the gate, test or construction enforcing it — or `nothing` | `rules-of-engagement` |
+
+## Placeholders the context does not supply
+
+A core file may carry a placeholder no project fills, because it is resolved when a binding is
+rendered or a run is dispatched. **They stay placeholders.** They are listed here so one
+statement of the set holds: a `{{a.b}}` in a core file is either a context key above or a row
+below, and anything else is a defect (`framework/bin/validate-context.sh` check 1).
+
+| placeholder | supplied by | read by |
+|---|---|---|
+| `{{member.role_summary}}`, `{{member.use_when}}`, `{{member.position_sentence}}`, `{{member.owns_summary}}`, `{{member.not_owns_summary}}` | the renderer, from `framework/roster.md` and the member's record in `project-context/ownership.md` | `framework/templates/agent-binding.md.template` |
+| `{{member.reached_through}}` | the `reached_through` field of `{{roster.side_contexts[]}}` above — one fact, spelled per member | `framework/roles/provider-context.md` |
+| `{{run.name}}`, `{{run.branch}}`, `{{run.description}}`, `{{plan.document}}`, `{{intake.document}}` | the `task-orchestrator` skill, once per run, filling the template it emits a pipeline script from | `framework/templates/workflow-script.js.template` |
+| `{{task.id}}`, `{{task.title}}`, `{{task.short}}`, `{{task.body}}`, `{{task.tier}}`, `{{task.effort}}`, `{{task.effort_guidance}}`, `{{task.acceptance}}`, `{{phase.title}}`, `{{phase.detail}}`, `{{ruling}}` | the `task-orchestrator` skill, once per task, phase or review ruling within that run | `framework/templates/workflow-script.js.template` |
+
+An instantiation fills none of these and `framework-init` leaves them alone: one of these left
+standing in a rendered file is not an unfinished instantiation.
 
 ## `project-context/glossary.md` — domain vocabulary
 

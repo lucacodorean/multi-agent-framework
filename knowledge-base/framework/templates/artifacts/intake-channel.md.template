@@ -1,7 +1,7 @@
 # Documentation intake
 
 Append-only. Workers: append doc-impact entries below the line, in the three-line format that
-`framework/rules/documentation-governance.md` defines. {{docs.sole_writer}} verifies each
+`framework/rules/documentation-governance.md` defines. `docs.sole_writer` verifies each
 against its SOURCE, merges, and truncates. Never edit above the line.
 
 ---
