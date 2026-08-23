@@ -31,8 +31,8 @@ HARD CONSTRAINTS:
   {{docs.worker_channel}}. A summary, notes or handoff file is a task failure even if the code
   works.
 - Stay inside your ownership area (project-context/ownership.md).
-- Verification runs where {{project.runbook_doc}} says it runs. Know the machine-wide
-  serialization before assuming a slow start is a hang.
+- Verification runs where project-context/commands.md says it runs (commands.runner_prefix).
+  Know the machine-wide serialization before assuming a slow start is a hang.
 `
 
 const LANDED = `

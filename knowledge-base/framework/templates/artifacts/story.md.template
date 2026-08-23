@@ -6,12 +6,12 @@ sources: <inputs that introduced or last changed this story>
 code_refs: <implementing paths, once they exist>
 ---
 
-Acceptance criteria in `{{project.input_language}}`, imperative and testable.
+Acceptance criteria in the project's `project.input_language`, imperative and testable.
 
 <!--
 Living artifact (framework/rules/doc-artifact-registry.md § Lifecycles):
 current intent only — history lives in version control. One story per file. Ids are never
 reused; a rename keeps the id. Update in place as intent changes; delete a story whose scope
-is dropped, with no tombstone. Written only by {{docs.sole_writer}}; every other agent
-reports story impact through {{docs.worker_channel}}.
+is dropped, with no tombstone. Written only by `docs.sole_writer`; every other agent
+reports story impact through `docs.worker_channel`.
 -->

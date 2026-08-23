@@ -14,7 +14,7 @@ FI-17, in full and without exception:
 - Never push.
 - Commit only on explicit user request.
 - Destructive operations require an explicit user-approved task. For this project:
-  `{{commands.destructive[]}}`, plus any member-specific entries in `{{member.destructive[]}}`.
+  `commands.destructive`, plus any member-specific entries in `member.destructive`.
 - Any operation against a store other than the project's dedicated test resources is
   destructive by default.
 
@@ -30,9 +30,9 @@ FI-17, in full and without exception:
 
 FI-16. Verify against the real baseline, never a simulation:
 
-- Suites through `{{commands.test}}`; a single target through `{{commands.test_narrow}}`.
-- Data stores through `{{commands.db_shell}}` and `{{commands.cache_shell}}`.
-- Style and analysis through `{{commands.style_check}}` and `{{commands.static_analysis}}`.
-- After any topology change, `{{commands.env_full_boot}}` — never a restart. A restart can
+- Suites through `commands.test`; a single target through `commands.test_narrow`.
+- Data stores through `commands.db_shell` and `commands.cache_shell`.
+- Style and analysis through `commands.style_check` and `commands.static_analysis`.
+- After any topology change, `commands.env_full_boot` — never a restart. A restart can
   exit green while the old topology still runs.
-- Each member's own proof set: `{{member.verify[]}}`.
+- Each member's own proof set: `member.verify`.

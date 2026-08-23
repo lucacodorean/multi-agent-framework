@@ -3,7 +3,7 @@
 Every command, per runtime, with its verification status. Mark anything not verified by
 execution as UNVERIFIED, with the date of the last verification run. The key set is
 `project-context/commands.md`; this file holds the per-runtime detail. Budget: the entry for
-this file in `{{docs.write_paths[]}}`.
+this file in `docs.write_paths`.
 
 ## Environment up — <runtime id>
 
@@ -14,7 +14,7 @@ The one documented path from a fresh clone to a working install. A manual step h
 
 | task | command |
 |---|---|
-| … | `{{commands.*}}` |
+| <task> | <command — the key it comes from in `commands.md`, or the literal> |
 
 ## Test-suite discipline
 

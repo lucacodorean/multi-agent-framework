@@ -1,7 +1,7 @@
 # Documentation artifact registry
 
 Framework rule. The artifact kinds a project may declare, and the lifecycle each obeys.
-Project values: `{{docs.artifact_types[]}}` in `project-context/docs-policy.md`.
+Project values: `docs.artifact_types` in `project-context/docs-policy.md`.
 
 A project declares, per kind: `path_pattern`, `writer`, `authorization`, `lifecycle`, `budget`.
 The framework fixes what each lifecycle means.
@@ -21,7 +21,7 @@ The framework fixes what each lifecycle means.
 ## Standard kinds
 
 The kinds a project is likely to declare, with a **suggested** path and the lifecycle that fits
-it. A project's `{{docs.artifact_types[]}}` is canonical: take these, rename them, drop the ones
+it. A project's `docs.artifact_types` is canonical: take these, rename them, drop the ones
 it has no use for, add its own. Nothing here authorizes anything — a kind is in force when the
 project declares it.
 
@@ -37,7 +37,6 @@ invention, and so two projects that do not think about it end up alike.
 | intake channel | `docs/_intake.md` | `append-only` | standing: the project's policy | no |
 | compaction archive | `docs/archive/**` | `sole-record` | standing: the project's policy | no |
 | convention | `docs/conventions/<name>.md` | `living` | human-per-file | yes |
-| system description | `docs/architecture.md` | `living` | human-per-file | yes |
 | operating commands | `docs/runbook.md` | `living` | human-per-file | yes |
 | runtime topology | `docs/topology/<runtime>.md` | `living` | human-per-file | yes |
 | CI host wiring | `docs/ci/<host>.md` | `living` | human-per-file | yes |
@@ -48,6 +47,11 @@ follows the input (`no`, so a number would be meaningless). It is not a number: 
 cannot know one.
 
 Templates for the kinds that have a fixed shape: `framework/templates/artifacts/`.
+
+There is no `system description` kind: the architecture description is context, not
+documentation produced by work, and lives in the directory `project.architecture_dir` names
+(`framework/contracts/project-context.schema.md`). Declaring it here as well would give one
+subject two homes (FI-01).
 
 ## Authorization
 
@@ -69,5 +73,5 @@ Each kind names how a new file in it is authorized (FI-20):
 
 ## Budgets
 
-`budget` is in tokens under `{{docs.metric}}`, or `none` where length follows the input rather
+`budget` is in tokens under `docs.metric`, or `none` where length follows the input rather
 than the author (generated intake, review reports). FI-18 governs overrun.

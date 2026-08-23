@@ -40,6 +40,12 @@ permission map.
 | isolated working copy | `isolation: "worktree"` on the dispatch |
 | a reviewer's delivery channel | `SendMessage` to the lead |
 
+Named teammates are gated on this host: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in the harness
+settings makes the primitive available (verified 2026-08-23). Without it the teammate row above
+is unreachable and `framework/rules/orchestration.md` loses one of its three shapes. That flag is
+a framework requirement of this host, not an operator preference — unlike how teammates are
+displayed, which is one.
+
 ## Model map
 
 | framework tier | host model |

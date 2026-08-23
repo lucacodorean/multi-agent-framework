@@ -7,7 +7,7 @@ Standing orders: `framework/roles/_standing-orders.md`.
 
 ## You own
 
-`{{member.owns[]}}`, minus `{{member.carve_outs[]}}` — paths inside your tree that belong to
+`member.owns`, minus `member.carve_outs` — paths inside your tree that belong to
 another member because ownership follows what code does, not where it lives (FI-05).
 Everything else is read-only.
 
@@ -21,11 +21,11 @@ Everything else is read-only.
 3. Respect ports and adapters: call the port, never the adapter class; the port's failure
    vocabulary belongs to the declaring module; the binding lives in the composition root
    (`framework/rules/rules-of-engagement.md`).
-4. Work to the conventions your record names — `{{member.conventions[]}}` — and to
-   `{{conventions.code_level}}` and `{{conventions.structural}}`.
-5. Verify with `{{member.verify[]}}` against real services, never simulations (FI-16). Report
+4. Work to the conventions your record names — `member.conventions` — and to
+   `conventions.code_level` and `conventions.structural`.
+5. Verify with `member.verify` against real services, never simulations (FI-16). Report
    the actual output.
-6. Carry out your record's own duties: `{{member.duties[]}}`. They are as binding as this
+6. Carry out your record's own duties: `member.duties`. They are as binding as this
    charter.
 
 ## Scope

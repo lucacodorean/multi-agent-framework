@@ -26,7 +26,8 @@ Two rules an agent can only learn here, because this is the file every agent loa
 
 ## 1. Repository layout
 
-Canonical: {{project.architecture_doc}}. Ownership: `project-context/ownership.md`.
+Canonical: `project-context/architecture/` — a directory, one file per area, indexed by its
+`README.md`. Ownership: `project-context/ownership.md`.
 
 | path | contents | owner |
 |---|---|---|
@@ -55,9 +56,9 @@ Canonical: `framework/rules/orchestration.md`. Host spellings: `framework/hosts/
 
 ## 6. Environment and commands
 
-Canonical: {{project.runbook_doc}} — every command, per runtime, with its verification status.
-This file names no command. Runtimes: `project-context/runtimes.md`. Gates:
-`project-context/ci.md`.
+Canonical: `project-context/commands.md` — every command, with its verification status, and
+`commands.runner_prefix` for where a command runs. This file names no command. Runtimes:
+`project-context/runtimes.md`. Gates: `project-context/ci.md`.
 
 ## 7. Documentation governance
 

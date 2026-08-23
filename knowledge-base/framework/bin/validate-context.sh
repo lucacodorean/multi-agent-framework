@@ -106,7 +106,7 @@ undocumented=0
 while read -r ph; do
   [ -z "$ph" ] && continue
   grep -qF "$ph" "$SCHEMA" || { note "  placeholder not in the contract: $ph"; undocumented=$((undocumented+1)); }
-done < <(core_files | xargs grep -ho '{{[a-z_][A-Za-z0-9_.\[\]]*}}' 2>/dev/null | sort -u)
+done < <(core_files | xargs grep -hoE '\{\{[a-z_][A-Za-z0-9_.]*(\[\])?\}\}' 2>/dev/null | sort -u)
 [ "$undocumented" -eq 0 ] && echo "  every placeholder used by a core file is documented"
 # The other direction: a key the contract documents and no context file supplies is invisible
 # today. Rows the contract itself marks as sourced from the core roster are not the project's to
@@ -115,6 +115,7 @@ if [ -n "$CTX" ]; then
   unsupplied=0
   while IFS= read -r row; do
     case "$row" in *'framework/roster.md'*) continue;; esac
+    # rows below the non-context heading are supplied by the renderer or the orchestrator
     for ph in $(printf '%s' "$row" | grep -oE '\{\{[a-z_]+\.[A-Za-z0-9_.]*(\[\])?\}\}' | tr -d '{}' | sed 's/\[\]$//'); do
       val=$(grep -hE "^\| \`$ph\` \|" "$CTX"/*.md 2>/dev/null | head -1 | awk -F'|' '{print $3}' | sed 's/^ *//; s/ *$//')
       if ! grep -rqF "\`$ph\`" "$CTX"/ 2>/dev/null; then
@@ -125,8 +126,29 @@ if [ -n "$CTX" ]; then
         note "  '$ph' is declared but not filled in (${val:-empty})"; unsupplied=$((unsupplied+1))
       fi
     done
-  done < <(grep '^| ' "$SCHEMA")
+  done < <(awk '/^## Placeholders the context does not supply/{exit} /^\| /' "$SCHEMA")
   [ "$unsupplied" -eq 0 ] && echo "  every documented key is supplied by the context"
+
+  # The check above reads `| `key` | value |` rows, so it sees scalars only. A list- or
+  # table-shaped key has no key cell, and its form prompt survives instantiation unnoticed —
+  # `| <id> | <topology doc path> |` passes as readily as a filled row. So sweep for any prompt
+  # left in place, in any shape: a table cell, a bullet, a keyed bullet. A value that merely
+  # CONTAINS <an-argument> is fine, exactly as above; one that IS a prompt is not. Forms kept
+  # inside the instantiation for copying (`_*.md`) are prompts by design and are skipped.
+  stubs=0
+  while IFS= read -r hit; do
+    note "  unfilled prompt: $hit"; stubs=$((stubs+1))
+  done < <(find "$CTX" -name '*.md' ! -name '_*' | sort | while IFS= read -r f; do
+             awk -v F="$f" '
+               function bare(s) { gsub(/^[ \t`]+|[ \t`]+$/, "", s); return (s ~ /^<[^<>]*>$/) }
+               /^\|/ { n = split($0, c, "|")
+                       for (i = 2; i < n; i++) if (bare(c[i])) { print F ":" FNR; next } }
+               /^- /  { v = $0; sub(/^- (`[^`]*`: *)?/, "", v); if (bare(v)) print F ":" FNR }
+             ' "$f"
+           done | awk -F: '{ if (!c[$1]++) first[$1] = $2 }
+                            END { for (f in c) print f " — " c[f] " prompt(s) still the blank " \
+                                        "form, first at line " first[f] }' | sort)
+  [ "$stubs" -eq 0 ] && echo "  no form prompt left unfilled in the instantiation"
 fi
 
 echo "== 2. core purity (FI-23)"
@@ -164,6 +186,13 @@ else
     grep -q 'project-context/ownership.md' "$b" || note "  $b names no member record"
     grep -q '_standing-orders.md' "$b" || note "  $b names no standing orders"
     grep -qE '^model:|^effort' "$b" && note "  $b pins model or effort (FI-09)"
+    # A binding sits outside the unit, so its citations must carry the anchor and resolve from
+    # the repository root (FI-27). Check 4 resolves knowledge-base-relative paths and would read
+    # these as valid; from where the binding actually lives they are not.
+    for p in $(grep -oE '`[^`]*(framework|project-context)/[A-Za-z0-9_./-]*' "$b" | tr -d '`'); do
+      case "$p" in */) continue;; esac
+      [ -e "$BINDING_BASE/$p" ] || note "  $b cites '$p', which does not resolve from the repository root (FI-27)"
+    done
     lines=$(wc -l < "$b")
     [ "$lines" -gt 40 ] && note "  $b is $lines lines — a binding restating a charter is a defect"
   done
@@ -369,6 +398,22 @@ else
   done < <(awk '/^## Allowed write paths/{f=1;next} /^## /{f=0} f' "$CTX/docs-policy.md")
   [ "$over" -eq 0 ] && echo "  $checked budgeted files checked, grace ${grace}, $within inside it, none over"
 fi
+
+echo "== 10. placeholder notation"
+# Canonical: the contract's "Three notations, one meaning each". A placeholder belongs only where
+# it is declared (the contract) or substituted (a rendered template); one in a rule, a role or a
+# mounted skill is a citation in brace costume — it reads as a hole and nothing will ever fill it.
+# `{{kb.root}}` is the one exception the contract names: the reader resolves that one.
+braces=0
+while read -r f; do
+  [ "$f" = "$SCHEMA" ] && continue
+  # A rendered template sits directly in framework/templates/; its subdirectories hold forms,
+  # which are filled by typing over `<...>` and so may carry no hole.
+  [ "$(dirname "$f")" = framework/templates ] && continue
+  hits=$(grep -oE '\{\{[^}]*\}\}' "$f" 2>/dev/null | grep -vE '^\{\{(a\.b(\[\])?(\.c)?|kb\.root)\}\}$' | sort -u | tr '\n' ' ')
+  [ -n "$hits" ] && { note "  $f carries $hits — a citation names the key, without braces"; braces=$((braces+1)); }
+done < <(core_files)
+[ "$braces" -eq 0 ] && echo "  every placeholder sits in the contract or a rendered template"
 
 echo
 [ "$fail" -eq 0 ] && echo "PASS" || echo "FINDINGS — see above"

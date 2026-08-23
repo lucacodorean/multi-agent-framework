@@ -12,7 +12,7 @@ Project Artifacts  the host repository's index, docs and code
 ```
 
 Paths in this unit are knowledge-base-relative (FI-27): `framework/rules/…`, never
-`knowledge-base/framework/rules/…`. Files outside the unit cite `{{kb.root}}`, the anchor the
+`knowledge-base/framework/rules/…`. Files outside the unit cite `kb.root`, the anchor the
 project declares once and the host's instruction file restates.
 
 ## The unit has a version
@@ -93,7 +93,7 @@ change to stand one up.
 
 ## The rule that makes this work
 
-Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one entry in
+Core files carry placeholders, written `{{a.b}}`. Every placeholder resolves to exactly one entry in
 `project-context/**`. A core file that states a project fact directly is a defect —
 `framework/bin/validate-context.sh` fails on it.
 
@@ -108,7 +108,7 @@ Core files carry `{{placeholders}}`. Every placeholder resolves to exactly one e
 | `framework/hosts/` | one adapter per agent harness (Claude Code, opencode, Grok) | by framework maintainers only |
 | `framework/templates/` | project-context templates, agent-binding template, `CLAUDE.md` template, workflow-script template | by framework maintainers only |
 | `framework/VERSION` | the core's version — bumped when a core change is published | by framework maintainers only |
-| `framework/bin/` | `validate-context.sh` (nine checks) and `lock-core.sh` (the read-only layers) | by framework maintainers only |
+| `framework/bin/` | `validate-context.sh` (ten checks) and `lock-core.sh` (the read-only layers) | by framework maintainers only |
 | the host's mounted skills | generic skills; they live at the **host repository root**, not in this unit, because a harness discovers them only there (`framework/hosts/`) | by framework maintainers only |
 | `project-context/` | every value that changes between projects; created at instantiation — absent in the framework repository itself | **by the project** |
 | `.claude/agents/`, `.opencode/agents/` | thin per-member bindings rendered from `framework/templates/agent-binding.md.template` | **by the project** |
@@ -130,7 +130,7 @@ Initializing a new project modifies project-owned artifacts only.
 ## Initializing a project
 
 1. Copy `framework/templates/project-context/*.md` to `project-context/`.
-2. Fill every `{{placeholder}}`. `framework/contracts/project-context.schema.md` lists each
+2. Fill every placeholder. `framework/contracts/project-context.schema.md` lists each
    one, its shape, and which core file consumes it.
 3. Render `CLAUDE.md` from `framework/templates/CLAUDE.md.template`.
 4. Render one binding per roster member into each host directory the project uses, from
