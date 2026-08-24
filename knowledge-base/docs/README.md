@@ -21,7 +21,11 @@ declared kind with a declared path and lifecycle, or it needs a human to name it
 notes, progress and handoff files are not a kind — they never were, and FI-02 still holds.
 
 Documentation *about the framework itself* belongs here too, under the same registry. The
-framework's own rules do not: they are core, and read-only (FI-25).
+framework's own rules do not: they are core, and read-only (FI-25). Nothing here mirrors a core
+rule, and nothing here redirects to one: the index-and-law file at the repository root is the
+map from a subject to the rule that governs it, and a second map is a second thing to keep true
+(FI-01). A convention this project needs *on top of* a core rule is an extension, not a file
+here (FI-26).
 
 ## Layout
 
@@ -30,7 +34,7 @@ kind's lifecycle is: `framework/rules/doc-artifact-registry.md`.
 
 | path | holds |
 |---|---|
-| `conventions/` | the two convention slots the framework mandates (`engineering-principles.md`, `architecture-principles.md` — both stubs until filled), and pointer stubs for rules that moved into the core |
+| `conventions/` | the project's own conventions — including the two slots the framework mandates and never fills, `engineering-principles.md` and `architecture-principles.md` |
 | `adr/` | decision records — immutable once accepted; template in `framework/templates/artifacts/` |
 | `stories/` | living stories — current intent only |
 | `tracker/` | normalized intake documents — transit, never pruned |

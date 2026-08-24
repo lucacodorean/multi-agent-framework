@@ -275,14 +275,19 @@ try:
 except Exception:
     tok_total_str = ''
 
-# One value per line, every value newline-terminated → mapfile yields exactly 20.
+# One value per line, every value newline-terminated → the read loop yields exactly 20.
 vals = [model_id, model_name, cwd, style, f"{cost:.4f}", adds, dels,
         ctx_size, used, pct, remain, five_pct, five_reset, week_pct, week_reset,
         sub_type, rate_tier, five_eta, week_eta, tok_total_str]
 sys.stdout.write("".join(f"{v}\n" for v in vals))
 PYEOF
 
-mapfile -t F < <(printf '%s' "$input" | "$PY" -c "$PROG" 2>/dev/null)
+# Not `mapfile`: that is a bash 4 builtin, and macOS ships bash 3.2. `IFS= read -r` keeps
+# leading/trailing spaces and preserves empty values, which several of the 20 fields can be.
+F=()
+while IFS= read -r _line; do
+  F+=("$_line")
+done < <(printf '%s' "$input" | "$PY" -c "$PROG" 2>/dev/null)
 
 if [ "${#F[@]}" -lt 20 ]; then
   printf 'Claude Code — statusline parse error\n'
